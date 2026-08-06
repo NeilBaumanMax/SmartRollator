@@ -106,3 +106,43 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 - Markdown 相对链接：Passed，33 个 Markdown 文件。
 - 完整工程提交：`2cd83025946a8ab55553f834773f7f7bc52bd955`（`chore(repo): track complete SmartRollator workspace`）。
 - 推送：Passed，远端 `main` 从 `97208dc` 推进到 `2cd8302`。
+
+## 2026-08-07 — 施工文档漂移修正与 Git 文件级施工树
+
+### Plan Replay
+
+在正式当前仓库的独立文档分支修正仍指向旁路重建目录或“另建新仓库”的当前指令，并把 Phase 1–11 的 Git 设计细化到可独立验证、回滚的文件级微提交。
+
+### Actual Changes
+
+- 统一当前事实源：正式施工入口和唯一源均为当前 Git 工作树的仓库根目录。
+- 新增 `GIT_CONSTRUCTION_TREE.md`：11 个阶段、66 个微提交节点，逐项定义精确文件、职责/接口、测试与回滚点。
+- 在工作流和阶段模板中增加施工树节点、计划文件与接口字段。
+- 保留追加式历史记录，并给两份旧交接材料增加历史状态声明，避免其被误作当前指令。
+- 同步索引、总要求、总计划、Git/回滚、交接、产品需求和受影响层级页。
+
+### Test Log
+
+- Markdown 相对链接：Passed，检查 34 个 Markdown 文件。
+- 施工树结构：Passed，识别 11 个阶段段落和 66 个微提交节点。
+- 当前模型漂移扫描：Passed，排除追加式历史记录后，旧正式路径/另建仓库指令为 0 命中。
+- 状态一致性：Passed，Phase 0 为 Complete、Phase 1 和 L0 为 Partially complete。
+- 手写变更空白检查：`git diff --check` Passed。
+- 固件编译、烧录、目标板和台架：Not run（本轮排除项）。
+
+### Failures / Fixes / Retests
+
+- 第一次复测脚本：Failed。zsh 数组展开把全部 Markdown 路径作为一个长文件名传给解析器，得到无效的“1 files”结果。
+- 第一次修复：改为逐文件读取；链接检查正确通过 34 个文件，但结构检查标题正则未包含章节编号，脚本提前退出。
+- 第二次修复：按实际 `## N. Phase N` 标题匹配，并把历史决策与当前事实扫描分开；随后全链路复测 Passed。
+- 上述失败均属于验收脚本，不是文档链接、固件构建或硬件失败。未把文档生成成功解释为固件验证成功。
+
+### Git Status
+
+- 开工基线：`75d5609f9115c704c3d36dacc3eab1994442b126`。
+- 工作分支：`docs/git-design-tree`；修改前已推送同名远端备份分支。
+- 提交与最终远端哈希：完成精确暂存和推送后由命令输出核对，并在最终交付报告中给出。
+
+### Risks / Next Step
+
+施工树是实现契约，不是已有固件能力证明。下一步必须从 P1.02 工具链证据开始，不可跳过 P1.03 的实际构建就进入外设或电机控制阶段。

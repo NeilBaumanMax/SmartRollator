@@ -1,5 +1,7 @@
 # 给下一个 AI Agent 的启动提示词
 
+> 历史提示词声明（2026-08-07）：本文不再是可执行施工入口。正式仓库现为当前 Git 工作树的仓库根目录；请改读根 `AGENTS.md`、`docs/INDEX.md` 和 `docs/construction/GIT_CONSTRUCTION_TREE.md`，不要执行下文的独立目录初始化指令。
+
 将下面整段内容复制给新的 AI Agent。建议把当前参考工程和新的空目录都放在其可访问的工作区内。
 
 ---

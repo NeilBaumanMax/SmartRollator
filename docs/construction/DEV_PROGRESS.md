@@ -7,7 +7,7 @@
 | 阶段 | 状态 | 说明 |
 |---|---|---|
 | Phase 0 施工文档基线 | Complete | 文档结构已建立；仅文档验收，不代表固件验证 |
-| Phase 1 新仓库与最小工程 | Partially complete | Git/远端/归档基线已建立；CubeMX/Keil 最小工程和构建尚未建立 |
+| Phase 1 正式仓库与最小工程 | Partially complete | Git/远端/归档基线已建立；CubeMX/Keil 最小工程和构建尚未建立 |
 | Phase 2–11 | Pending | 依赖前置阶段 |
 
 ## 2026-08-07 — Phase 0 开工
@@ -67,3 +67,27 @@
 - Full Workspace Baseline：`2cd83025946a8ab55553f834773f7f7bc52bd955`，1549 个变更文件已提交。
 - Push：Passed，`main` 从 `97208dc` 推进到 `2cd8302`。
 - Validation：暂存区未包含意外构建输出；33 个 Markdown 相对链接 Passed；旧生成文件的 CRLF/行末空白按原始证据保留。
+
+## 2026-08-07 — 施工文档漂移与 Git 文件级设计开工
+
+- Objective：统一当前正式仓库事实，并把 V1 Git 施工树细化到微提交、精确文件和主要接口。
+- Affected Layers：工程治理与全部 L0–L5 的施工规划；不修改固件行为。
+- Repository State：正式仓库为当前 Git 工作树根目录；分支 `docs/git-design-tree`；起点 `75d5609`；开工时工作树干净。
+- Planned Files：`CODEX_START_HERE.md`、`CODEX_MASTER_REQUIREMENTS.md`、`CONSTRUCTION_PLAN.md`、`GITHUB_ROLLBACK.md`、新增 `GIT_CONSTRUCTION_TREE.md`、当前交接和受影响层级页。
+- Tests：旧路径/旧仓库模型扫描、Markdown 相对链接、必需章节、状态一致性、`git diff --check`、远端分支哈希核对。
+- Git Baseline：`75d5609f9115c704c3d36dacc3eab1994442b126`。
+- Backup Branch：`docs/git-design-tree` 已在改文档前推送到远端并指向开工基线。
+- Rollback Plan：放弃文档分支或对本轮单一文档提交执行 `git revert`；不改写历史日志。
+- Acceptance Criteria：所有当前事实源只指向正式当前仓库；历史材料明确标为历史；每个计划微提交列出精确文件、功能/接口、测试和回滚点。
+- Explicit Exclusions：不生成 CubeMX、不开启电机、不修改参考固件、不声称编译或硬件通过。
+
+## 2026-08-07 — 施工文档漂移与 Git 文件级设计结论
+
+- Status：Complete（文档治理子范围）；Phase 1 整体仍为 Partially complete。
+- Delivered：修正当前事实源中的旧路径/双仓库模型；新增 `GIT_CONSTRUCTION_TREE.md`，把 Phase 1–11 拆为 66 个文件级微提交节点。
+- Precision：每个节点列出精确文件、文件职责/主要接口、最邻近测试和回滚点；CubeMX/MDK 厂商生成文件采用“精确生成文件清单 + SHA-256 清单”约束，禁止在生成前臆造内容。
+- Historical Records：`LOG.md`、本文件既有条目和 `docs/handover/` 原始内容不改写；历史交接页已增加失效范围提示。
+- Validation：34 个 Markdown 相对链接 Passed；11 个阶段段落、66 个施工节点结构检查 Passed；当前事实源旧仓库模型扫描 0 命中；状态一致性 Passed；`git diff --check` Passed。
+- Firmware Validation：Not run；未执行 CubeMX 生成、Keil 编译、烧录、目标板或台架测试。
+- Rollback：本轮改动集中于 `docs/git-design-tree`；可按提交执行 `git revert`，不依赖历史改写。
+- Next：从最新 `main` 建立并先行推送 `build/phase-1-bootstrap`，从 P1.02 开始记录工具链，再执行 P1.03 最小工程生成。

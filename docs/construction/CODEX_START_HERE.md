@@ -2,7 +2,7 @@
 
 ## 你正在做什么
 
-本项目不是在旧目录上继续堆补丁，而是用旧工程作为只读参考，从零建立一个新的、受 Git 管理的 SmartRollator 固件。施工目标和真实状态以本目录文档为准，聊天记录不构成事实源。
+本项目在当前正式 Git 仓库内，以已归档的旧工程为参考，按阶段重新建立可构建、可测试、可回滚的 SmartRollator 固件。不得把当前完整工程基线误认为已验证发布版。施工目标和真实状态以本目录文档为准，聊天记录不构成事实源。
 
 ## 开工阅读顺序
 
@@ -11,8 +11,9 @@
 3. `../product/PRODUCT_REQUIREMENTS.md`
 4. `ARCHITECTURE.md` 与 `LAYER_CONTRACT.md`
 5. `CONSTRUCTION_PLAN.md`
-6. `DEV_PROGRESS.md` 与 `HANDOFF.md`
-7. 当前阶段对应的 `progress/layers/*.md`
+6. `GIT_CONSTRUCTION_TREE.md`
+7. `DEV_PROGRESS.md` 与 `HANDOFF.md`
+8. 当前阶段对应的 `progress/layers/*.md`
 
 ## 第一次接手时必须检查
 
@@ -25,7 +26,7 @@ git remote -v
 git log --oneline --decorate -8
 ```
 
-如果目录不是 Git 仓库，如实记录“Git 基线未建立”，然后按 Phase 1 执行；不得假装已有提交或远端备份。
+正式施工目录固定为当前 Git 工作树的仓库根目录。如果该目录不是 Git 仓库或远端不匹配，立即停止施工并按 `GITHUB_ROLLBACK.md` 恢复；不得在旁路目录静默建立替代事实源。
 
 ## 单阶段施工闭环
 
@@ -48,7 +49,7 @@ git log --oneline --decorate -8
 
 ## 当前起点
 
-- 当前目录保存旧工程及新建立的施工文档。
-- 当前目录尚未确认 Git 仓库；以实时 `git` 检查结果为准。
-- 当前固件有参考价值，但不能作为新仓库的测试通过证据。
-- 下一步是 Phase 1：创建独立重建仓库、首个远端备份分支和最小可构建工程。
+- 当前目录是正式本地 Git 仓库，`main` 保存完整工程基线与施工文档。
+- `reference/archive-20260807` 保存纳入 Git 前的只读参考快照；不能作为当前构建通过证据。
+- Git/远端/回滚基线已建立；最小可复现 CubeMX/Keil 构建仍未建立。
+- 下一步是完成 Phase 1 的工具链冻结、最小安全失能工程和真实全量编译。

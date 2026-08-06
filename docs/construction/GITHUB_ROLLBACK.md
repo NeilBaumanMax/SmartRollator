@@ -2,18 +2,18 @@
 
 ## 仓库模型
 
-- 正式本地仓库：`/Users/neil/项目/SmartRollator/SmartRollator`，也是当前工程工作目录。
+- 正式本地仓库：当前 Git 工作树的仓库根目录，也是当前工程工作目录。
 - GitHub 远端：`git@github.com:NeilBaumanMax/SmartRollator.git`。
 - `main` 保存治理文档和完整工程基线，后续施工均从该仓库创建阶段分支。
-- `SmartRollator-Rebuild` 是早期按旧交接方案建立的辅助克隆，不再作为正式施工入口。
+- 早期按旧交接方案建立的旁路辅助克隆不再作为正式施工入口或事实源。
 - 旧工程首次纳入 Git 前的证据仍由 `reference/archive-20260807` 和 `reference_manifest.sha256` 保留。
 
-## 远端与双轨历史
+## 远端与参考归档
 
 - GitHub 远端：`https://github.com/NeilBaumanMax/SmartRollator.git`。
 - `main`：正式施工主线，包含完整可追踪工程；只接收达到当前阶段验收条件的增量。
 - `backup/bootstrap-YYYYMMDD`：指向首个治理/施工基线，用于恢复重建起点。
-- `reference/archive-YYYYMMDD`：旧参考工程的完整可用资产归档；与 `main` 使用独立根提交，不合并到重建主线。
+- `reference/archive-YYYYMMDD`：纳入正式 Git 施工前的完整资产归档；与 `main` 使用独立根提交，不合并到施工主线。
 - `build/phase-N-short-name`：阶段施工分支；验收前不得把未验证状态合入 `main`。
 
 “全量归档”是指完整保存后续取证所需的源码、CubeMX 配置、Keil 工程定义、生成源码、第三方源码/库、文档、图表和可复现工具；不包括可再生构建产物、IDE 用户状态、操作系统垃圾、临时渲染预览、密钥、隐私数据或机器绝对路径配置。归档分支不是发布分支，其源码存在、旧日志或旧二进制均不构成新固件验证证据。
@@ -62,7 +62,9 @@ build/phase-N-short-name    D--E...   后续阶段施工
 
 ## 分支与提交
 
-- 施工分支建议：`build/phase-N-short-name`。
+完整的文件级提交序列见 [Git 文件级施工树](GIT_CONSTRUCTION_TREE.md)。该文件是“下一批文件为何创建、同一提交包含哪些文件、运行什么测试”的权威入口；本文件只定义 Git 安全规则。
+
+- 施工分支：`build/phase-N-short-name`；纯文档治理可使用 `docs/short-name`。
 - 阶段备份建议：`backup/phase-N-YYYYMMDD`。
 - 提交信息建议：`docs: establish construction baseline`、`feat(force): parse validated sensor frames`。
 - 一个提交对应一个可解释、可测试、可回滚的增量。

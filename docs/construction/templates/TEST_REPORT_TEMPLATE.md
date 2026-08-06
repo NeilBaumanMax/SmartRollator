@@ -25,4 +25,4 @@ Passed / Failed / Not run / Blocked
 
 ## Remaining Risk
 
-测试结果应在 `LOG.md` 留摘要；原始证据存入新仓库约定的位置或外部存储索引。
+测试结果应在 `LOG.md` 留摘要；原始证据存入正式仓库约定的位置或外部存储索引。

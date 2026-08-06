@@ -10,16 +10,16 @@ git remote -v
 git log --oneline --decorate -8
 ```
 
-然后阅读必读文档、确认当前阶段、检查不明改动，并在 `DEV_PROGRESS.md` 追加阶段计划。没有已推送基线时先执行备份，不碰代码。
+然后阅读必读文档、确认当前阶段和 `GIT_CONSTRUCTION_TREE.md` 的目标节点、检查不明改动，并在 `DEV_PROGRESS.md` 追加阶段计划。没有已推送基线时先执行备份，不碰代码。
 
 ## 2. 阶段开工计划
 
-必须写明：Objective、Affected Layers、Repository State、Planned Files、Tests、Git Baseline、Backup Branch、Rollback Plan、Acceptance Criteria、Explicit Exclusions。
+必须写明：Objective、Affected Layers、Repository State、Construction Tree Nodes、Planned Files、Planned Interfaces、Tests、Git Baseline、Backup Branch、Rollback Plan、Acceptance Criteria、Explicit Exclusions。
 
 ## 3. 实施微循环
 
 ```text
-一个内聚小改动 → 最近的静态/单元/构建检查 → 记录结果 → 下一个改动
+一个施工树节点/内聚小改动 → 最近的静态/单元/构建检查 → 记录结果与节点状态 → 下一个节点
 ```
 
 - 先建立可观测性，再接通危险输出。
@@ -30,7 +30,7 @@ git log --oneline --decorate -8
 ## 4. 阶段收尾
 
 1. 运行阶段规定的完整测试集。
-2. 更新对应层级文档、`LOG.md`、`DEV_PROGRESS.md`、`HANDOFF.md`。
+2. 更新 `GIT_CONSTRUCTION_TREE.md` 的实际偏差、对应层级文档、`LOG.md`、`DEV_PROGRESS.md`、`HANDOFF.md`。
 3. 检查 `git diff --check` 和工作树，确认没有密钥、缓存或无关文件。
 4. 精确 `git add <file...>`，审阅 staged diff。
 5. 创建单一目的提交并推送。

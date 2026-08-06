@@ -13,12 +13,12 @@
 - Acceptance Criteria：新 Agent 不看聊天即可说明当前状态和下一阶段动作。
 - Rollback Point：文件级备份；Git 回滚点未建立。
 
-## Phase 1 — 新仓库与最小工程
+## Phase 1 — 正式仓库与最小工程
 
-- Goal：建立干净 Git 仓库、远端备份和最小可构建 STM32H723 工程。
-- Included：`.gitignore`、README、文档复制、CubeMX `.ioc`、Keil 工程、最小启动。
+- Goal：在已建立的正式 Git 仓库中冻结工具链、远端备份和最小可构建 STM32H723 工程。
+- Included：仓库治理复核、`.gitignore`、README、CubeMX `.ioc`、Keil 工程、最小安全失能启动。
 - Excluded：设备协议、控制算法、电机使能。
-- Dependencies：确认新仓库路径和 GitHub 远端。
+- Dependencies：正式仓库路径和 GitHub 远端已确认；需确认实际 CubeMX/MDK/Pack 版本。
 - Planned Deliverables：首个可复现构建提交、`backup/bootstrap-*` 远端分支。
 - Tests：干净克隆/生成/Keil 编译；记录工具版本和完整结果。
 - Acceptance Criteria：远端提交可检出且零警告或警告均有解释；上电无驱动力。
@@ -116,10 +116,14 @@
 
 ## Phase 11 — 系统安全与等价验收
 
-- Goal：在新仓库完成参考能力等价和故障注入验证。
+- Goal：在正式仓库完成参考能力等价和故障注入验证。
 - Included：完整台架矩阵、通信中断、看门狗、急停、重启、长稳和文档复核。
 - Excluded：载人测试和产品认证。
 - Dependencies：Phase 1–10。
 - Tests：`TEST_METRICS.md` 全部适用项；对参考行为进行可解释比较。
 - Acceptance Criteria：所有关键风险有通过证据或明确阻塞；工作树干净并推送。
 - Rollback Point：`v0.1.0-parity` 标签及远端 release 分支。
+
+## 文件级实施入口
+
+上述阶段只定义能力与验收边界。每个阶段的微提交顺序、精确文件、主要接口、最近测试和回滚点统一见 [Git 文件级施工树](GIT_CONSTRUCTION_TREE.md)。实现时若文件名或接口需要变化，必须先更新该树和对应 ADR，再编码。

@@ -5,7 +5,9 @@
 - Affected Layers:
 - Repository State:
 - Current Branch:
+- Construction Tree Nodes:
 - Planned Files:
+- Planned Interfaces:
 - Tests:
 - Git Baseline:
 - Backup Branch and Remote Proof:

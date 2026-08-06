@@ -1,5 +1,7 @@
 # SmartRollator 项目交接与 Git 重建指南
 
+> 历史材料声明（2026-08-07）：本文记录最初的独立目录重建方案。正式施工入口现为当前 Git 工作树的仓库根目录，路径与 Git 操作以 `docs/construction/GITHUB_ROLLBACK.md`、`GIT_CONSTRUCTION_TREE.md` 和 ADR-007 为准；不要执行本文中的旧目录初始化步骤。
+
 文档状态：可执行交接基线  
 整理日期：2026-08-06  
 当前参考工程：`/Users/neil/项目/SmartRollator/SmartRollator`  

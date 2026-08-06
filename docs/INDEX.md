@@ -11,12 +11,14 @@
 5. [分阶段施工计划](construction/CONSTRUCTION_PLAN.md)
 6. [当前进度](construction/DEV_PROGRESS.md)
 7. [当前交接](construction/HANDOFF.md)
-8. 当前阶段对应的[分层进度文档](construction/progress/layers/README.md)
+8. [Git 文件级施工树](construction/GIT_CONSTRUCTION_TREE.md)
+9. 当前阶段对应的[分层进度文档](construction/progress/layers/README.md)
 
 ## 管理与验证
 
 - [施工工作流](construction/WORKFLOW.md)：一次阶段如何开始、实施、验收和结束。
 - [Git 与回滚](construction/GITHUB_ROLLBACK.md)：仓库、分支、提交、远端备份和恢复规则。
+- [Git 文件级施工树](construction/GIT_CONSTRUCTION_TREE.md)：逐微提交列出精确文件、功能、接口、测试和回滚点。
 - [测试与指标](construction/TEST_METRICS.md)：测试层级、证据标准和完成定义。
 - [分层契约](construction/LAYER_CONTRACT.md)：模块边界、依赖方向和接口责任。
 - [工具政策](construction/TOOL_POLICY.md)：CubeMX、Keil、脚本、串口与硬件工具的使用边界。
@@ -32,7 +34,7 @@
 
 ## 历史与参考材料
 
-- [既有项目交接](handover/PROJECT_HANDOVER.md)：用于理解现有参考固件，不代表新仓库已验证状态。
+- [既有项目交接](handover/PROJECT_HANDOVER.md)：用于理解现有参考固件；其中独立目录方案已被 ADR-007 取代，不代表当前验证状态。
 - [下一位 AI Agent 提示词](handover/NEXT_AI_AGENT_PROMPT.md)：旧版交接提示；新施工以本索引和 `AGENTS.md` 为准。
 
 ## 文档维护规则
