@@ -101,3 +101,8 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 - 权限修复后复测：Passed，当前目录成功输出 `Initialized empty Git repository`。
 - 配置本地提交身份和 SSH 远端；`git fetch origin` 成功取得 main、bootstrap 和 reference archive。
 - 本地 `main` 已安全绑定 `origin/main`，未覆盖当前工程文件；下一步把完整工程精确暂存、提交并推送。
+- 精确暂存：1549 个变更文件；未发现 `.gitignore` 规定的意外构建输出进入暂存区。
+- `git diff --cached --check`：Failed，81276 条输出来自旧 CubeMX/Keil 文件的 CRLF/行末空白；为保留参考证据未批量改写。
+- Markdown 相对链接：Passed，33 个 Markdown 文件。
+- 完整工程提交：`2cd83025946a8ab55553f834773f7f7bc52bd955`（`chore(repo): track complete SmartRollator workspace`）。
+- 推送：Passed，远端 `main` 从 `97208dc` 推进到 `2cd8302`。

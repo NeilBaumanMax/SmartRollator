@@ -64,4 +64,6 @@
 - Fix：取得明确目录写权限后重新执行，成功创建 `/Users/neil/项目/SmartRollator/SmartRollator/.git`。
 - Repository State：本地 `main` 已绑定 `origin/main`；远端 main、backup 和 reference 分支已抓取；完整工程正作为精确暂存范围纳入 `main`。
 - Design Correction：正式施工入口改为当前工程目录；旁边的 `SmartRollator-Rebuild` 不再是正式入口。
-- Validation Pending：完整工程提交、推送和最终远端哈希核对。
+- Full Workspace Baseline：`2cd83025946a8ab55553f834773f7f7bc52bd955`，1549 个变更文件已提交。
+- Push：Passed，`main` 从 `97208dc` 推进到 `2cd8302`。
+- Validation：暂存区未包含意外构建输出；33 个 Markdown 相对链接 Passed；旧生成文件的 CRLF/行末空白按原始证据保留。

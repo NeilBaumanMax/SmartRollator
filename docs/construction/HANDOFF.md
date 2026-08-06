@@ -51,9 +51,10 @@ SmartRollator 已完成 docs-first 施工体系和 Git 双轨基线。Phase 0 �
 
 - Repository：`https://github.com/NeilBaumanMax/SmartRollator.git`；默认分支 `main`。
 - Bootstrap Commit：`f34420f913f0fa3a19a67f116f083b769815896d`。
+- Full Workspace Baseline：`2cd83025946a8ab55553f834773f7f7bc52bd955`，已从正式当前目录推送到 `main`。
 - Backup Branch：`backup/bootstrap-20260807`，远端哈希与 bootstrap commit 一致。
 - Reference Archive：`reference/archive-20260807` → `a0669d7e36e54e78970e8162b0bc47334221c6c5`。
-- Push Status：Passed；三条远端引用已用 `git ls-remote` 核对。
+- Push Status：Passed；完整工程已进入远端 `main`，bootstrap 和 reference archive 仍保留。
 - Working Tree：正式本地仓库为 `/Users/neil/项目/SmartRollator/SmartRollator`；已初始化并绑定 `origin/main`。旁边的 `SmartRollator-Rebuild` 仅为辅助克隆，不再作为施工入口。
 
 ## Risks
