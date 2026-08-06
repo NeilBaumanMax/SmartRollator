@@ -74,8 +74,14 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 
 ### Git Status
 
-提交、分支和推送尚未执行；完成后在本条后追加真实哈希和远端核验结果。
+首次提交与推送完成：
+
+- `main` bootstrap：`f34420f913f0fa3a19a67f116f083b769815896d`。
+- `backup/bootstrap-20260807`：`f34420f913f0fa3a19a67f116f083b769815896d`。
+- `reference/archive-20260807`：`a0669d7e36e54e78970e8162b0bc47334221c6c5`。
+- `git ls-remote --symref`：HEAD 指向 `refs/heads/main`；三条远端引用与本地一致。
+- GitHub CLI：Not established（本机无 `gh`）；仓库可见性和分支保护未通过 API 核对。
 
 ### Risks / Next Step
 
-归档提交体积较大且包含厂商生成源码/库，首次推送可能耗时；归档只用于取证，不能进入 `main` 或被描述为已验证固件。
+归档提交包含厂商生成源码/库，只用于取证，不能进入 `main` 或被描述为已验证固件。Phase 1 尚缺 CubeMX/Keil 最小工程和实际构建证据，状态保持 Partially complete。

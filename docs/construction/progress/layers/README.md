@@ -4,7 +4,7 @@
 
 | 文件 | 能力 | 当前状态 |
 |---|---|---|
-| [00-foundation.md](00-foundation.md) | Git、工程、构建 | Pending |
+| [00-foundation.md](00-foundation.md) | Git、工程、构建 | Partially complete |
 | [01-platform-peripherals.md](01-platform-peripherals.md) | STM32 平台与外设 | Pending |
 | [02-force-sensing.md](02-force-sensing.md) | RS485 力传感 | Pending |
 | [03-motor-canopen.md](03-motor-canopen.md) | ZLAC/CANopen | Pending |

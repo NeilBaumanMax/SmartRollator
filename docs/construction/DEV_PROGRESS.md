@@ -7,7 +7,7 @@
 | 阶段 | 状态 | 说明 |
 |---|---|---|
 | Phase 0 施工文档基线 | Complete | 文档结构已建立；仅文档验收，不代表固件验证 |
-| Phase 1 新仓库与最小工程 | Pending | Git 基线、远端与构建均未建立 |
+| Phase 1 新仓库与最小工程 | Partially complete | Git/远端/归档基线已建立；CubeMX/Keil 最小工程和构建尚未建立 |
 | Phase 2–11 | Pending | 依赖前置阶段 |
 
 ## 2026-08-07 — Phase 0 开工
@@ -44,3 +44,15 @@
 - Rollback Plan：`main` 和参考归档使用独立根提交；通过 bootstrap 分支恢复重建起点，参考归档保持只读。
 - Acceptance Criteria：`main`、`backup/bootstrap-20260807`、`reference/archive-20260807` 均已推送且远端哈希与本地一致；默认分支待核对；工作树无未解释改动。
 - Explicit Exclusions：不生成 CubeMX 工程、不编译/烧录、不接通电机、不把旧构建产物或 IDE 用户状态上传、不宣称旧固件已验证。
+
+## 2026-08-07 — Phase 1 Git 基线结论
+
+- Status：Partially complete；Git 子范围完成，最小可构建工程子范围未开始。
+- Repository：`https://github.com/NeilBaumanMax/SmartRollator.git`，默认分支 `main`。
+- Main Baseline：`f34420f913f0fa3a19a67f116f083b769815896d`（后续文档状态提交将推进 `main`）。
+- Backup Branch：`backup/bootstrap-20260807` → `f34420f913f0fa3a19a67f116f083b769815896d`。
+- Reference Archive：`reference/archive-20260807` → `a0669d7e36e54e78970e8162b0bc47334221c6c5`。
+- Remote Verification：`git ls-remote --symref` 确认 HEAD 指向 `refs/heads/main`，三条分支远端哈希与本地一致。
+- Validation：Markdown 相对链接 Passed；归档清单 1577 项 SHA-256 Passed；敏感模式扫描无匹配；GitHub 推送 Passed。
+- Not Run：CubeMX 生成、Keil 编译、烧录、目标板和台架测试。
+- Next：在独立 `SmartRollator-Rebuild` 工作目录从 `main` 创建 `build/phase-1-bootstrap`，生成并实际编译最小安全失能工程。
