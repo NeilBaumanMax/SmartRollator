@@ -54,7 +54,7 @@ SmartRollator 已完成 docs-first 施工体系和 Git 双轨基线。Phase 0 �
 - Backup Branch：`backup/bootstrap-20260807`，远端哈希与 bootstrap commit 一致。
 - Reference Archive：`reference/archive-20260807` → `a0669d7e36e54e78970e8162b0bc47334221c6c5`。
 - Push Status：Passed；三条远端引用已用 `git ls-remote` 核对。
-- Working Tree：独立重建工作目录建立后以实时检查为准；旧参考目录仍不初始化 Git。
+- Working Tree：`/Users/neil/项目/SmartRollator/SmartRollator-Rebuild` 已检出 `main`，核验时干净且跟踪 `origin/main`；旧参考目录仍未初始化 Git。
 
 ## Risks
 

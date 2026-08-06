@@ -85,3 +85,11 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 ### Risks / Next Step
 
 归档提交包含厂商生成源码/库，只用于取证，不能进入 `main` 或被描述为已验证固件。Phase 1 尚缺 CubeMX/Keil 最小工程和实际构建证据，状态保持 Partially complete。
+
+### Local Clone Failure / Fix / Retest
+
+- 首次克隆后核验：Failed。大对象下载在工具的 30 秒返回窗口后仍在后台运行，但会话未被继续轮询，工作目录暂时只有 `.git`，`HEAD` 指向无效占位引用。
+- 修复：继续抓取远端对象和引用，待 `origin/main`、bootstrap 和 reference archive 可解析后检出 `main`；终止一个重复且不再需要的 fetch 会话。
+- 复测：Passed。`SmartRollator-Rebuild` 工作树干净并跟踪 `origin/main`；`git fsck --full` 退出码 0；HEAD 为 `b264fe344f998bae9f4df471dfd889743276ce81`。
+- 归档复测：从 `reference/archive-20260807` 解包后，`reference_manifest.sha256` 的 1577 项全部 Passed。
+- 最后一轮独立 `git ls-remote`：Failed（GitHub 443 临时连接失败）；远端最终状态仍由此前成功 push、后续成功 fetch 得到的三条 `origin/*` 引用交叉验证。网络恢复后应再次执行只读核对。
