@@ -1,0 +1,30 @@
+.DS_Store
+.vscode/
+*.uvguix.*
+*.uvoptx
+
+# Keil build outputs
+MDK-ARM/SmartRollator/
+MDK-ARM/Objects/
+MDK-ARM/Listings/
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.map
+*.lst
+*.build_log.htm
+
+# Generated previews and caches
+generated_docs/render_*/
+generated_docs/ql_*/
+__pycache__/
+*.pyc
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key

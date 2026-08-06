@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartRollator Hopf-CPG 变导纳控制动态演示</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #102033;
+      --muted: #64748b;
+      --line: #d7dee9;
+      --blue: #2563b8;
+      --green: #0f8b6c;
+      --orange: #c46a12;
+      --purple: #6d4cc2;
+      --red: #b42318;
+      --shadow: 0 12px 32px rgba(15, 35, 60, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .app {
+      width: min(1800px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 8px 2px 18px;
+      border-bottom: 3px solid var(--blue);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.18;
+      font-weight: 780;
+      color: #0b2545;
+    }
+
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 6px 18px rgba(15, 35, 60, 0.06);
+      min-height: 76px;
+    }
+
+    .metric .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .metric .value {
+      font-variant-numeric: tabular-nums;
+      font-size: 24px;
+      font-weight: 720;
+      line-height: 1.1;
+    }
+
+    .metric .unit {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 4px;
+      font-weight: 500;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 440px 1fr 420px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcff;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 760;
+      color: #0b2545;
+    }
+
+    .panel-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .canvas-wrap {
+      padding: 14px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e5eaf2;
+      border-radius: 8px;
+    }
+
+    #phaseCanvas { height: 420px; }
+    #chartCanvas { height: 300px; }
+
+    .controls {
+      padding: 12px 14px 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 112px 1fr 72px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .control label {
+      color: #203047;
+      font-weight: 650;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .readout {
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    button {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #102033;
+      border-radius: 8px;
+      min-height: 36px;
+      font-weight: 680;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    button.warn {
+      border-color: #fed7aa;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .flow {
+      padding: 18px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .flow-row.bottom {
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      margin-top: 18px;
+    }
+
+    .block {
+      min-height: 142px;
+      border-radius: 8px;
+      border: 2px solid var(--blue);
+      background: #eff6ff;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .block.green { border-color: var(--green); background: #ecfdf5; }
+    .block.orange { border-color: var(--orange); background: #fff7ed; }
+    .block.purple { border-color: var(--purple); background: #f5f3ff; }
+    .block.red { border-color: var(--red); background: #fef2f2; }
+
+    .block h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.2;
+      color: #0b2545;
+    }
+
+    .block .eq {
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #14213d;
+    }
+
+    .block .small {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .arrow {
+      height: 4px;
+      background: var(--muted);
+      position: relative;
+      border-radius: 4px;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      width: 0;
+      height: 0;
+      transform: translateY(-50%);
+      border-left: 12px solid var(--muted);
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
+
+    .vertical-link {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      min-height: 54px;
+    }
+
+    .up-link {
+      justify-self: center;
+      width: 4px;
+      height: 54px;
+      background: var(--purple);
+      position: relative;
+      grid-column: 2;
+    }
+
+    .up-link::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom: 12px solid var(--purple);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+    }
+
+    .wheel-zone {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .wheel {
+      width: 134px;
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 12px solid #1e293b;
+      background:
+        radial-gradient(circle at center, #ffffff 0 10%, #1e293b 10% 14%, transparent 14%),
+        conic-gradient(from 0deg, #dbeafe 0 12deg, #ffffff 12deg 45deg, #dbeafe 45deg 57deg, #ffffff 57deg 90deg, #dbeafe 90deg 102deg, #ffffff 102deg 135deg, #dbeafe 135deg 147deg, #ffffff 147deg 180deg, #dbeafe 180deg 192deg, #ffffff 192deg 225deg, #dbeafe 225deg 237deg, #ffffff 237deg 270deg, #dbeafe 270deg 282deg, #ffffff 282deg 315deg, #dbeafe 315deg 327deg, #ffffff 327deg 360deg);
+      box-shadow: inset 0 0 0 2px #93c5fd;
+      transform: rotate(0deg);
+    }
+
+    .wheel-label {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      padding: 0 14px 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 3px;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: currentColor;
+      border-radius: 99px;
+    }
+
+    .xline { color: var(--blue); }
+    .yline { color: var(--purple); }
+    .dline { color: var(--orange); }
+    .vline { color: var(--green); }
+    .fline { color: var(--red); }
+
+    .formula-list {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 10px;
+      font-family: "Cambria Math", "Times New Roman", serif;
+      color: #14213d;
+      font-size: 16px;
+    }
+
+    .formula-list div {
+      border: 1px solid #e5eaf2;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fbfdff;
+    }
+
+    @media (max-width: 1280px) {
+      .layout { grid-template-columns: 1fr; }
+      .status-strip { grid-template-columns: repeat(2, 1fr); }
+      #phaseCanvas, #chartCanvas { height: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>Hopf-CPG 变导纳控制动态演示</h1>
+        <div class="sub">SmartRollator：力输入 → Hopf 极限环 → 动态阻尼 → 导纳速度 → CAN 电机转速</div>
+      </div>
+      <div class="panel-note">仿真步长按工程控制周期：Δt = 0.001 s</div>
+    </header>
+
+    <section class="status-strip" aria-label="实时变量">
+      <div class="metric"><div class="label">F_ext</div><div><span class="value" id="mForce">0.0</span><span class="unit">N</span></div></div>
+      <div class="metric"><div class="label">x</div><div><span class="value" id="mX">0.100</span></div></div>
+      <div class="metric"><div class="label">y</div><div><span class="value" id="mY">0.000</span></div></div>
+      <div class="metric"><div class="label">ω</div><div><span class="value" id="mOmega">5.65</span><span class="unit">rad/s</span></div></div>
+      <div class="metric"><div class="label">D_current</div><div><span class="value" id="mD">38.0</span><span class="unit">N·s/m</span></div></div>
+      <div class="metric"><div class="label">v_cmd</div><div><span class="value" id="mV">0.000</span><span class="unit">m/s</span></div></div>
+      <div class="metric"><div class="label">target_vel</div><div><span class="value" id="mRpm">0</span><span class="unit">rpm</span></div></div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">极限环相平面</h2>
+          <div class="panel-note">蓝圈半径 = √μ</div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="phaseCanvas" width="820" height="820"></canvas>
+        </div>
+        <div class="formula-list">
+          <div>ẋ = α(μ - x² - y²)x - ωy + εF_ext</div>
+          <div>ẏ = α(μ - x² - y²)y + ωx</div>
+          <div>r² = x² + y²，稳定半径 r = √μ</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">助行车控制链路</h2>
+            <div class="panel-note">实时数据沿箭头流动</div>
+          </div>
+          <div class="flow">
+            <div class="flow-row">
+              <div class="block green">
+                <h3>力传感器</h3>
+                <div class="eq">F_ext = force-&gt;fx</div>
+                <div class="small">USART2 / RS485，右把手力输入</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block">
+                <h3>Hopf-CPG</h3>
+                <div class="eq">x, y, ω</div>
+                <div class="small">产生稳定节律状态；外力经 εF_ext 进入 x 通道</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block orange">
+                <h3>动态阻尼</h3>
+                <div class="eq">D = D_base - λx</div>
+                <div class="small">D 被限制在 [15, 80]，避免阻尼过小或过大</div>
+              </div>
+            </div>
+
+            <div class="vertical-link">
+              <div></div><div class="up-link"></div><div></div>
+            </div>
+
+            <div class="flow-row bottom">
+              <div class="block purple">
+                <h3>动捕步频</h3>
+                <div class="eq">freq_hz</div>
+                <div class="small">后续串口接入人体实时步频，范围 0.3 ~ 2.0 Hz</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block purple">
+                <h3>频率更新</h3>
+                <div class="eq">ω = 2πf</div>
+                <div class="small">CPG_Update_Frequency() 更新 Hopf 节律</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block red">
+                <h3>防发散保护</h3>
+                <div class="eq">isnan / isinf / clamp</div>
+                <div class="small">限制 F_ext、x/y、dt、D、v_c，避免异常输入破坏控制器</div>
+              </div>
+            </div>
+
+            <div class="flow-row" style="margin-top: 18px;">
+              <div class="block purple">
+                <h3>导纳模型</h3>
+                <div class="eq">a_c = (F_ext - Dv_c) / M</div>
+                <div class="small">v_c ← v_c + a_c·Δt，输出车体线速度</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block green">
+                <h3>Controller_Run()</h3>
+                <div class="eq">v_cmd → rpm</div>
+                <div class="small">rpm = v·60/(2πR)，当前 R = 0.075 m</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="block">
+                <h3>MotorTxTask / CAN</h3>
+                <div class="eq">left = rpm，right = -rpm</div>
+                <div class="small">左右轮来自同一个 wheel_rpm，幅值严格一致</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-head">
+            <h2 class="panel-title">时间序列</h2>
+            <div class="panel-note">观察力输入、CPG 状态、阻尼和速度的联动</div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="chartCanvas" width="1200" height="420"></canvas>
+          </div>
+          <div class="legend">
+            <span class="fline">F_ext</span>
+            <span class="xline">x</span>
+            <span class="yline">y</span>
+            <span class="dline">D_current</span>
+            <span class="vline">v_cmd</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">参数与输入</h2>
+            <div class="panel-note">实时改变控制器行为</div>
+          </div>
+          <div class="controls">
+            <div class="control"><label for="forceBase">手推力</label><input id="forceBase" type="range" min="-80" max="120" step="1" value="25"><div class="readout" id="rForceBase"></div></div>
+            <div class="control"><label for="forceWave">步态力幅值</label><input id="forceWave" type="range" min="0" max="80" step="1" value="28"><div class="readout" id="rForceWave"></div></div>
+            <div class="control"><label for="freq">步频 f</label><input id="freq" type="range" min="0.3" max="2.0" step="0.01" value="0.90"><div class="readout" id="rFreq"></div></div>
+            <div class="control"><label for="alpha">α</label><input id="alpha" type="range" min="1" max="30" step="0.5" value="10"><div class="readout" id="rAlpha"></div></div>
+            <div class="control"><label for="mu">μ</label><input id="mu" type="range" min="0.1" max="2.5" step="0.05" value="1"><div class="readout" id="rMu"></div></div>
+            <div class="control"><label for="epsilon">ε</label><input id="epsilon" type="range" min="0" max="0.06" step="0.001" value="0.01"><div class="readout" id="rEpsilon"></div></div>
+            <div class="control"><label for="mass">M</label><input id="mass" type="range" min="5" max="40" step="0.5" value="15"><div class="readout" id="rMass"></div></div>
+            <div class="control"><label for="dBase">D_base</label><input id="dBase" type="range" min="15" max="80" step="1" value="40"><div class="readout" id="rDBase"></div></div>
+            <div class="control"><label for="lambda">λ</label><input id="lambda" type="range" min="0" max="45" step="1" value="20"><div class="readout" id="rLambda"></div></div>
+            <div class="control"><label for="speed">演示速度</label><input id="speed" type="range" min="0.2" max="8" step="0.1" value="2.0"><div class="readout" id="rSpeed"></div></div>
+            <div class="buttons">
+              <button class="primary" id="toggleBtn">暂停</button>
+              <button id="resetBtn">重置状态</button>
+              <button class="warn" id="pulseBtn">推力脉冲</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-head">
+            <h2 class="panel-title">左右轮同步</h2>
+            <div class="panel-note">同源 rpm，右轮取负补偿安装方向</div>
+          </div>
+          <div class="wheel-zone">
+            <div>
+              <div class="wheel" id="leftWheel"></div>
+              <div class="wheel-label">左轮：<span id="leftRpm">0</span> rpm</div>
+            </div>
+            <div>
+              <div class="wheel" id="rightWheel"></div>
+              <div class="wheel-label">右轮：<span id="rightRpm">0</span> rpm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const sliders = {
+      forceBase: $("forceBase"),
+      forceWave: $("forceWave"),
+      freq: $("freq"),
+      alpha: $("alpha"),
+      mu: $("mu"),
+      epsilon: $("epsilon"),
+      mass: $("mass"),
+      dBase: $("dBase"),
+      lambda: $("lambda"),
+      speed: $("speed")
+    };
+
+    const state = {
+      t: 0,
+      x: 0.1,
+      y: 0,
+      v: 0,
+      D: 40,
+      force: 0,
+      rpm: 0,
+      pulse: 0,
+      running: true,
+      leftAngle: 0,
+      rightAngle: 0
+    };
+
+    const hist = [];
+    const MAX_HIST = 720;
+    const traj = [];
+    const MAX_TRAJ = 900;
+    const PI = Math.PI;
+
+    function clamp(v, lo, hi) {
+      if (!Number.isFinite(v)) return 0;
+      return Math.min(hi, Math.max(lo, v));
+    }
+
+    function params() {
+      const f = Number(sliders.freq.value);
+      return {
+        forceBase: Number(sliders.forceBase.value),
+        forceWave: Number(sliders.forceWave.value),
+        freq: f,
+        omega: 2 * PI * f,
+        alpha: Number(sliders.alpha.value),
+        mu: Number(sliders.mu.value),
+        epsilon: Number(sliders.epsilon.value),
+        M: Number(sliders.mass.value),
+        Dbase: Number(sliders.dBase.value),
+        lambda: Number(sliders.lambda.value),
+        speed: Number(sliders.speed.value)
+      };
+    }
+
+    function updateReadouts() {
+      const p = params();
+      $("rForceBase").textContent = `${p.forceBase.toFixed(0)} N`;
+      $("rForceWave").textContent = `${p.forceWave.toFixed(0)} N`;
+      $("rFreq").textContent = `${p.freq.toFixed(2)} Hz`;
+      $("rAlpha").textContent = p.alpha.toFixed(1);
+      $("rMu").textContent = p.mu.toFixed(2);
+      $("rEpsilon").textContent = p.epsilon.toFixed(3);
+      $("rMass").textContent = p.M.toFixed(1);
+      $("rDBase").textContent = p.Dbase.toFixed(0);
+      $("rLambda").textContent = p.lambda.toFixed(0);
+      $("rSpeed").textContent = `${p.speed.toFixed(1)}×`;
+    }
+
+    function resetState() {
+      state.t = 0;
+      state.x = 0.1;
+      state.y = 0;
+      state.v = 0;
+      state.D = Number(sliders.dBase.value);
+      state.force = 0;
+      state.rpm = 0;
+      state.pulse = 0;
+      hist.length = 0;
+      traj.length = 0;
+    }
+
+    function step(dt) {
+      const p = params();
+      state.t += dt;
+
+      const gaitForce = p.forceWave * Math.sin(2 * PI * p.freq * state.t);
+      state.pulse *= Math.exp(-dt * 4.0);
+      let F = p.forceBase + gaitForce + state.pulse;
+      F = clamp(F, -500, 500);
+
+      let x = clamp(state.x, -5, 5);
+      let y = clamp(state.y, -5, 5);
+      const r2 = x * x + y * y;
+      let dx = p.alpha * (p.mu - r2) * x - p.omega * y + p.epsilon * F;
+      let dy = p.alpha * (p.mu - r2) * y + p.omega * x;
+      dx = clamp(dx, -200, 200);
+      dy = clamp(dy, -200, 200);
+      x = clamp(x + dx * dt, -5, 5);
+      y = clamp(y + dy * dt, -5, 5);
+
+      let D = p.Dbase - p.lambda * x;
+      D = clamp(D, 15, 80);
+
+      let a = (F - D * state.v) / Math.max(0.0001, p.M);
+      a = clamp(a, -200, 200);
+      let v = clamp(state.v + a * dt, -0.5, 1.2);
+
+      const wheelRadius = 0.075;
+      const rpm = clamp(v * 60 / (2 * PI * wheelRadius), -400, 400);
+
+      state.x = x;
+      state.y = y;
+      state.D = D;
+      state.v = v;
+      state.force = F;
+      state.rpm = rpm;
+
+      traj.push({ x, y });
+      if (traj.length > MAX_TRAJ) traj.shift();
+
+      hist.push({ t: state.t, F, x, y, D, v, rpm });
+      if (hist.length > MAX_HIST) hist.shift();
+    }
+
+    function drawPhase() {
+      const canvas = $("phaseCanvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      const p = params();
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+
+      const margin = 56;
+      const cx = w / 2;
+      const cy = h / 2;
+      const lim = Math.max(1.8, Math.sqrt(p.mu) + 0.8);
+      const scale = (Math.min(w, h) / 2 - margin) / lim;
+      const sx = (x) => cx + x * scale;
+      const sy = (y) => cy - y * scale;
+
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      for (let v = -Math.ceil(lim); v <= Math.ceil(lim); v += 0.5) {
+        ctx.beginPath(); ctx.moveTo(sx(v), margin); ctx.lineTo(sx(v), h - margin); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(margin, sy(v)); ctx.lineTo(w - margin, sy(v)); ctx.stroke();
+      }
+
+      ctx.strokeStyle = "#94a3b8";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(margin, cy); ctx.lineTo(w - margin, cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, margin); ctx.lineTo(cx, h - margin); ctx.stroke();
+
+      ctx.strokeStyle = "#2563b8";
+      ctx.setLineDash([10, 7]);
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.sqrt(p.mu) * scale, 0, PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = "rgba(15, 139, 108, 0.28)";
+      ctx.lineWidth = 2;
+      for (let gx = -1.5; gx <= 1.5; gx += 0.5) {
+        for (let gy = -1.5; gy <= 1.5; gy += 0.5) {
+          const r2 = gx * gx + gy * gy;
+          let dx = p.alpha * (p.mu - r2) * gx - p.omega * gy;
+          let dy = p.alpha * (p.mu - r2) * gy + p.omega * gx;
+          const mag = Math.hypot(dx, dy) || 1;
+          dx /= mag; dy /= mag;
+          const x1 = sx(gx), y1 = sy(gy);
+          const x2 = x1 + dx * 18, y2 = y1 - dy * 18;
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+      }
+
+      if (traj.length > 1) {
+        ctx.beginPath();
+        traj.forEach((pt, i) => {
+          const x = sx(pt.x), y = sy(pt.y);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = "#0f8b6c";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "#b42318";
+      ctx.beginPath();
+      ctx.arc(sx(state.x), sy(state.y), 9, 0, PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = "#0b2545";
+      ctx.font = "22px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      ctx.fillText("x", w - margin + 12, cy + 7);
+      ctx.fillText("y", cx + 10, margin - 16);
+      ctx.font = "19px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(`r = ${Math.hypot(state.x, state.y).toFixed(3)}，目标半径 √μ = ${Math.sqrt(p.mu).toFixed(3)}`, 24, h - 24);
+    }
+
+    function drawChart() {
+      const canvas = $("chartCanvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+
+      const pad = { l: 52, r: 18, t: 24, b: 34 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const y = pad.t + ih * i / 5;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+      }
+
+      function plot(key, color, min, max) {
+        if (hist.length < 2) return;
+        ctx.beginPath();
+        hist.forEach((p, i) => {
+          const x = pad.l + iw * i / (MAX_HIST - 1);
+          const norm = (p[key] - min) / (max - min);
+          const y = pad.t + ih * (1 - clamp(norm, 0, 1));
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      plot("F", "#b42318", -120, 180);
+      plot("x", "#2563b8", -1.5, 1.5);
+      plot("y", "#6d4cc2", -1.5, 1.5);
+      plot("D", "#c46a12", 15, 80);
+      plot("v", "#0f8b6c", -0.5, 1.2);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "18px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      ctx.fillText("时间 →", w - 90, h - 10);
+    }
+
+    function updateMetrics() {
+      const p = params();
+      $("mForce").textContent = state.force.toFixed(1);
+      $("mX").textContent = state.x.toFixed(3);
+      $("mY").textContent = state.y.toFixed(3);
+      $("mOmega").textContent = p.omega.toFixed(2);
+      $("mD").textContent = state.D.toFixed(1);
+      $("mV").textContent = state.v.toFixed(3);
+      $("mRpm").textContent = Math.round(state.rpm).toString();
+      $("leftRpm").textContent = Math.round(state.rpm).toString();
+      $("rightRpm").textContent = Math.round(-state.rpm).toString();
+    }
+
+    function updateWheels(dt) {
+      const rpm = state.rpm;
+      state.leftAngle += rpm * 6 * dt;
+      state.rightAngle -= rpm * 6 * dt;
+      $("leftWheel").style.transform = `rotate(${state.leftAngle}deg)`;
+      $("rightWheel").style.transform = `rotate(${state.rightAngle}deg)`;
+    }
+
+    let last = performance.now();
+    function frame(now) {
+      const realDt = Math.min(0.04, (now - last) / 1000);
+      last = now;
+      const p = params();
+      if (state.running) {
+        const simTime = realDt * p.speed;
+        const n = Math.max(1, Math.round(simTime / 0.001));
+        const dt = simTime / n;
+        for (let i = 0; i < n; i++) step(dt);
+        updateWheels(realDt);
+      }
+      updateReadouts();
+      updateMetrics();
+      drawPhase();
+      drawChart();
+      requestAnimationFrame(frame);
+    }
+
+    Object.values(sliders).forEach((el) => el.addEventListener("input", updateReadouts));
+    $("resetBtn").addEventListener("click", resetState);
+    $("pulseBtn").addEventListener("click", () => { state.pulse += 120; });
+    $("toggleBtn").addEventListener("click", () => {
+      state.running = !state.running;
+      $("toggleBtn").textContent = state.running ? "暂停" : "继续";
+    });
+
+    resetState();
+    updateReadouts();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
