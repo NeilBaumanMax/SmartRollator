@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartRollator 工程逻辑图</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #17212f;
+      --muted: #627084;
+      --soft: #eef3f8;
+      --line: #d7e0ea;
+      --green: #27745f;
+      --blue: #226ca8;
+      --amber: #9b6622;
+      --violet: #6f55a8;
+      --red: #b84f4f;
+      --shadow: 0 10px 28px rgba(25, 36, 50, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      padding: 24px clamp(20px, 4vw, 54px) 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 3.2vw, 38px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 980px;
+    }
+
+    main {
+      padding: 22px clamp(20px, 4vw, 54px) 42px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 5px;
+      height: 22px;
+      border-radius: 4px;
+      background: #2e6f75;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(126px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 106px;
+      padding: 14px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -11px;
+      width: 12px;
+      height: 12px;
+      border-top: 2px solid #8a97a8;
+      border-right: 2px solid #8a97a8;
+      transform: translateY(-50%) rotate(45deg);
+      background: var(--bg);
+      z-index: 2;
+    }
+
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-bottom: 9px;
+      border-radius: 50%;
+      background: #e7f2f0;
+      color: #23695b;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .step h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .step p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(620px, 1.25fr) minmax(360px, 0.75fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .layers {
+      display: grid;
+      gap: 12px;
+    }
+
+    .layer {
+      display: grid;
+      grid-template-columns: 132px 1fr;
+      gap: 14px;
+      align-items: stretch;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .layer-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 7px;
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.35;
+      min-height: 74px;
+    }
+
+    .l-start { background: #4b667b; }
+    .l-input { background: var(--green); }
+    .l-rtos { background: #5c67b5; }
+    .l-control { background: var(--amber); }
+    .l-output { background: var(--blue); }
+    .l-monitor { background: var(--violet); }
+
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .chip {
+      min-height: 74px;
+      padding: 11px;
+      border: 1px solid #dde6ef;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .chip strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.35;
+      margin-bottom: 5px;
+    }
+
+    .chip span {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      line-height: 1.45;
+    }
+
+    th {
+      color: #314256;
+      font-size: 12px;
+      background: #f5f8fb;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .note {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .note li {
+      padding: 10px 11px;
+      border-left: 4px solid var(--red);
+      border-radius: 7px;
+      background: #fff3f3;
+      color: #5f3a3a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #edf2f7;
+      color: #223248;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .mini-flow {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .mini-flow div {
+      padding: 10px 12px;
+      border: 1px solid #dce5ef;
+      border-radius: 8px;
+      background: #fbfcfe;
+      color: #314256;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .mini-flow b {
+      color: var(--ink);
+    }
+
+    @media (max-width: 1180px) {
+      .pipeline {
+        grid-template-columns: repeat(4, minmax(150px, 1fr));
+      }
+
+      .step:not(:last-child)::after { display: none; }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .pipeline,
+      .chips {
+        grid-template-columns: 1fr;
+      }
+
+      .layer {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SmartRollator 工程逻辑图</h1>
+    <p class="subtitle">
+      用一条主线看懂工程：RS485 采集力数据，FreeRTOS 做任务和队列调度，导纳控制计算目标速度，
+      最后通过 FDCAN/CANopen 驱动 ZLAC8015D 双轮电机。
+    </p>
+  </header>
+
+  <main>
+    <h2 class="section-title">主控制链路</h2>
+    <section class="pipeline" aria-label="主控制链路">
+      <article class="step">
+        <span class="num">1</span>
+        <h2>RS485 力传感器</h2>
+        <p><code>USART2</code> 周期查询 29 字节响应帧。</p>
+      </article>
+      <article class="step">
+        <span class="num">2</span>
+        <h2>解析力数据</h2>
+        <p><code>processForceData</code> 解析出 <code>fx/fy/fz</code>。</p>
+      </article>
+      <article class="step">
+        <span class="num">3</span>
+        <h2>放入队列</h2>
+        <p><code>ForceQueueHandle</code> 保存最新 <code>ForceData_t</code>。</p>
+      </article>
+      <article class="step">
+        <span class="num">4</span>
+        <h2>控制任务</h2>
+        <p><code>ControlTask</code> 每 2ms 取最新数据。</p>
+      </article>
+      <article class="step">
+        <span class="num">5</span>
+        <h2>导纳控制</h2>
+        <p><code>Controller_Run</code> 将 <code>Fz</code> 转成目标速度。</p>
+      </article>
+      <article class="step">
+        <span class="num">6</span>
+        <h2>CAN 发送</h2>
+        <p><code>MotorTxTask</code> 打包左右轮 rpm。</p>
+      </article>
+      <article class="step">
+        <span class="num">7</span>
+        <h2>电机执行</h2>
+        <p><code>ZLAC8015D</code> 速度模式驱动双轮。</p>
+      </article>
+    </section>
+
+    <section class="layout">
+      <section class="panel">
+        <h2 class="section-title">工程分层</h2>
+        <div class="layers">
+          <article class="layer">
+            <div class="layer-label l-start">启动与外设</div>
+            <div class="chips">
+              <div class="chip"><strong><code>main.c</code></strong><span>初始化 HAL、系统时钟、GPIO、FDCAN、USART。</span></div>
+              <div class="chip"><strong><code>fdcan.c</code></strong><span>FDCAN1 用于电机，FDCAN2 已配置但基本未接入业务。</span></div>
+              <div class="chip"><strong><code>usart.c</code></strong><span>USART1 监控/视觉，USART2 RS485 力传感器。</span></div>
+            </div>
+          </article>
+
+          <article class="layer">
+            <div class="layer-label l-input">输入采集层</div>
+            <div class="chips">
+              <div class="chip"><strong><code>ForceSensorTask</code></strong><span>10ms 查询力传感器，并向力队列投递。</span></div>
+              <div class="chip"><strong><code>parse_aruco_frame</code></strong><span>解析 USART1 输入的视觉定位文本帧。</span></div>
+              <div class="chip"><strong><code>IMUtask</code></strong><span>任务和数据结构已预留，目前主要是占位。</span></div>
+            </div>
+          </article>
+
+          <article class="layer">
+            <div class="layer-label l-rtos">RTOS 数据层</div>
+            <div class="chips">
+              <div class="chip"><strong><code>ForceQueue</code></strong><span>控制任务读取最新力数据。</span></div>
+              <div class="chip"><strong><code>MotorCmdQueue</code></strong><span>控制任务向电机发送任务交付命令。</span></div>
+              <div class="chip"><strong><code>MonitorMutex</code></strong><span>保护 <code>g_mon</code> 监控快照。</span></div>
+            </div>
+          </article>
+
+          <article class="layer">
+            <div class="layer-label l-control">控制算法层</div>
+            <div class="chips">
+              <div class="chip"><strong>当前启用算法</strong><span><code>Fz -> acc -> vel</code> 积分得到 <code>target_vel</code>。</span></div>
+              <div class="chip"><strong>已写但注释算法</strong><span>低通、死区、限加速度、限速、jerk、fail-safe。</span></div>
+              <div class="chip"><strong>数据新鲜度</strong><span>力和电机反馈超过阈值后清零或视为无效。</span></div>
+            </div>
+          </article>
+
+          <article class="layer">
+            <div class="layer-label l-output">电机执行层</div>
+            <div class="chips">
+              <div class="chip"><strong><code>user_can.c</code></strong><span>CANopen PDO/SDO、NMT、驱动器使能。</span></div>
+              <div class="chip"><strong><code>ZLAC_SetVelocity_rpm</code></strong><span>向 <code>0x300 + ID</code> 发送左右轮 rpm。</span></div>
+              <div class="chip"><strong>双轮方向</strong><span>左轮 <code>+vel</code>，右轮 <code>-vel</code>。</span></div>
+            </div>
+          </article>
+
+          <article class="layer">
+            <div class="layer-label l-monitor">监控与日志</div>
+            <div class="chips">
+              <div class="chip"><strong><code>g_mon</code></strong><span>缓存 Force、Cmd、Vision。</span></div>
+              <div class="chip"><strong><code>Log_task</code></strong><span>约 100ms 输出一次状态。</span></div>
+              <div class="chip"><strong><code>USART1</code></strong><span>日志输出和视觉帧输入共用。</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel">
+          <h2 class="section-title">任务关系</h2>
+          <table>
+            <thead>
+              <tr><th>任务</th><th>职责</th><th>状态</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>ForceSensorTask</code></td><td>采集并解析力传感器</td><td>已接入</td></tr>
+              <tr><td><code>ControlTask</code></td><td>2ms 控制周期，调用导纳控制</td><td>核心任务</td></tr>
+              <tr><td><code>MotorTxTask</code></td><td>发送速度命令到驱动器</td><td>已接入</td></tr>
+              <tr><td><code>Log_task</code></td><td>状态打印和视觉帧解析</td><td>调试/监控</td></tr>
+              <tr><td><code>IMUtask</code></td><td>IMU 数据通路</td><td>占位</td></tr>
+              <tr><td><code>WatchdogTask</code></td><td>系统看门狗逻辑</td><td>占位</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel">
+          <h2 class="section-title">数据流简表</h2>
+          <div class="mini-flow">
+            <div><b>输入：</b> <code>ForceData_t</code>、预留 <code>IMUData_t</code>、预留 <code>MotorFb_t</code></div>
+            <div><b>控制：</b> <code>Controller_Run(imu, force, fb, out_cmd)</code></div>
+            <div><b>输出：</b> <code>MotorCmd_t.target_vel</code> 经 CANopen 发送到驱动器</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2 class="section-title">重点复核</h2>
+          <ul class="note">
+            <li><code>deltaT = 2</code> 注释是 2ms，但积分时没有按秒换算。</li>
+            <li><code>processForceData</code> 在不同文件里的声明和定义参数类型不一致。</li>
+            <li><code>CAN_Init</code> 在启动阶段和控制任务里可能重复调用。</li>
+            <li>完整导纳保护逻辑已写好但被注释，当前运行版本偏调试。</li>
+          </ul>
+        </section>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

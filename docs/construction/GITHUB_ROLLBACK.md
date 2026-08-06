@@ -2,14 +2,16 @@
 
 ## 仓库模型
 
-- 旧 SmartRollator 目录：只读参考，保留旧工程与历史材料。
-- 新 SmartRollator-Rebuild 仓库：唯一施工事实源，完整 Git 管理。
-- 文档在 Phase 1 原样进入新仓库；迁移后以新仓库版本为准。
+- 正式本地仓库：`/Users/neil/项目/SmartRollator/SmartRollator`，也是当前工程工作目录。
+- GitHub 远端：`git@github.com:NeilBaumanMax/SmartRollator.git`。
+- `main` 保存治理文档和完整工程基线，后续施工均从该仓库创建阶段分支。
+- `SmartRollator-Rebuild` 是早期按旧交接方案建立的辅助克隆，不再作为正式施工入口。
+- 旧工程首次纳入 Git 前的证据仍由 `reference/archive-20260807` 和 `reference_manifest.sha256` 保留。
 
 ## 远端与双轨历史
 
 - GitHub 远端：`https://github.com/NeilBaumanMax/SmartRollator.git`。
-- `main`：干净重建主线，只接收达到当前阶段验收条件的提交。
+- `main`：正式施工主线，包含完整可追踪工程；只接收达到当前阶段验收条件的增量。
 - `backup/bootstrap-YYYYMMDD`：指向首个治理/施工基线，用于恢复重建起点。
 - `reference/archive-YYYYMMDD`：旧参考工程的完整可用资产归档；与 `main` 使用独立根提交，不合并到重建主线。
 - `build/phase-N-short-name`：阶段施工分支；验收前不得把未验证状态合入 `main`。
@@ -19,11 +21,11 @@
 ### 首次分支拓扑
 
 ```text
-reference/archive-YYYYMMDD  A  旧工程可用资产快照（独立根提交）
+reference/archive-YYYYMMDD  A  纳入 Git 前的旧工程资产快照（独立根提交）
 
-main                        B  重建治理与施工基线（独立根提交）
-backup/bootstrap-YYYYMMDD   B  与首个 main 提交相同
-build/phase-1-bootstrap     B--C...  Phase 1 后续施工
+main                        B--C--D  治理基线、审计记录、完整工程基线
+backup/bootstrap-YYYYMMDD   B        首个治理基线回滚点
+build/phase-N-short-name    D--E...   后续阶段施工
 ```
 
 远端默认分支应为 `main`。若空仓库首次推送后默认分支不是 `main`，必须在 GitHub 设置中修正并记录；不得删除归档分支来掩盖配置问题。
@@ -48,13 +50,13 @@ build/phase-1-bootstrap     B--C...  Phase 1 后续施工
 
 ## Phase 1 首次建立
 
-1. 创建独立目录，确认不是旧仓库内部；旧目录不得执行 `git init`。
-2. 对旧目录按上述纳入/排除规则生成 `reference_manifest.sha256`。
-3. 在新目录建立 `reference/archive-YYYYMMDD` 独立根提交并推送。
-4. 建立独立根的 `main`，只加入最小 `.gitignore`、README、AGENTS 和施工 docs。
-5. 推送 `main`，创建并推送 `backup/bootstrap-YYYYMMDD`。
-6. 从 `main` 创建 `build/phase-1-bootstrap`，后续生成最小工程。
-7. 核对所有远端分支哈希和默认分支；把实际值写入 HANDOFF。
+1. 在正式当前目录执行 `git init -b main`，配置提交身份和 GitHub 远端。
+2. 对完整工程按上述纳入/排除规则生成并验证 `reference_manifest.sha256`。
+3. 保留 `reference/archive-YYYYMMDD` 独立根提交，作为纳入 Git 前的只读证据。
+4. 把正式本地 `main` 绑定到远端 `main`，完整工程作为后续提交纳入，不覆盖既有治理历史。
+5. 精确暂存完整工程并推送 `main`；保留 `backup/bootstrap-YYYYMMDD`。
+6. 从最新 `main` 创建 `build/phase-1-bootstrap`，后续生成最小工程。
+7. 核对所有远端分支哈希、默认分支和当前工作树；把实际值写入 HANDOFF。
 
 任何一步的实际 URL、分支和提交哈希都写入 HANDOFF；本文不预填虚假值。
 

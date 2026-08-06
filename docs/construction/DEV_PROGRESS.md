@@ -56,3 +56,12 @@
 - Validation：Markdown 相对链接 Passed；归档清单 1577 项 SHA-256 Passed；敏感模式扫描无匹配；GitHub 推送 Passed。
 - Not Run：CubeMX 生成、Keil 编译、烧录、目标板和台架测试。
 - Next：在独立 `SmartRollator-Rebuild` 工作目录从 `main` 创建 `build/phase-1-bootstrap`，生成并实际编译最小安全失能工程。
+
+## 2026-08-07 — Phase 1 本地仓库路径纠正
+
+- Trigger：产品负责人指出当前工程目录没有 `.git`，无法看到或使用本地仓库。
+- First Attempt：在当前目录执行 `git init -b main`，因沙箱对 `.git` 的写权限限制失败，错误为 `Operation not permitted`。
+- Fix：取得明确目录写权限后重新执行，成功创建 `/Users/neil/项目/SmartRollator/SmartRollator/.git`。
+- Repository State：本地 `main` 已绑定 `origin/main`；远端 main、backup 和 reference 分支已抓取；完整工程正作为精确暂存范围纳入 `main`。
+- Design Correction：正式施工入口改为当前工程目录；旁边的 `SmartRollator-Rebuild` 不再是正式入口。
+- Validation Pending：完整工程提交、推送和最终远端哈希核对。

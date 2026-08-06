@@ -93,3 +93,11 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 - 复测：Passed。`SmartRollator-Rebuild` 工作树干净并跟踪 `origin/main`；`git fsck --full` 退出码 0；HEAD 为 `b264fe344f998bae9f4df471dfd889743276ce81`。
 - 归档复测：从 `reference/archive-20260807` 解包后，`reference_manifest.sha256` 的 1577 项全部 Passed。
 - 最后一轮独立 `git ls-remote`：Failed（GitHub 443 临时连接失败）；远端最终状态仍由此前成功 push、后续成功 fetch 得到的三条 `origin/*` 引用交叉验证。网络恢复后应再次执行只读核对。
+
+## 2026-08-07 — 正式本地仓库路径纠正
+
+- 产品负责人指出当前工程目录缺少 `.git`；核对确认此前仓库建在旁边目录，交付入口与用户预期不一致。
+- 首次 `git init -b main`：Failed，沙箱拒绝写入 `.git`，错误为 `Operation not permitted`。
+- 权限修复后复测：Passed，当前目录成功输出 `Initialized empty Git repository`。
+- 配置本地提交身份和 SSH 远端；`git fetch origin` 成功取得 main、bootstrap 和 reference archive。
+- 本地 `main` 已安全绑定 `origin/main`，未覆盖当前工程文件；下一步把完整工程精确暂存、提交并推送。
