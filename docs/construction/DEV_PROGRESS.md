@@ -91,3 +91,30 @@
 - Firmware Validation：Not run；未执行 CubeMX 生成、Keil 编译、烧录、目标板或台架测试。
 - Rollback：本轮改动集中于 `docs/git-design-tree`；可按提交执行 `git revert`，不依赖历史改写。
 - Next：从最新 `main` 建立并先行推送 `build/phase-1-bootstrap`，从 P1.02 开始记录工具链，再执行 P1.03 最小工程生成。
+
+## 2026-08-07 — P1.02 工具链冻结开工
+
+- Objective：用只读、可重复执行的检测入口确认本机可用于 P1.03/P1.05 的 CubeMX、MDK、Arm Compiler 和 STM32Cube FW_H7 状态，并冻结证据格式。
+- Affected Layers：L0 工具链与构建治理；不修改 MCU 配置、生成源码或固件行为。
+- Repository State：从已验收 `main` 提交 `5403028d255ac16d2e137454fc40513e75eb01f2` 创建 `build/phase-1-bootstrap`；开工时工作树干净。
+- Construction Tree Nodes：P1.02。
+- Planned Files：新建 `docs/verification/TOOLCHAIN.md`、`docs/verification/builds/README.md`、`tools/check_toolchain.sh`；收尾时只更新 `AGENTS.md`、`DEV_PROGRESS.md`、`LOG.md`、`HANDOFF.md`、`progress/layers/00-foundation.md`。
+- Planned Interfaces：`sh tools/check_toolchain.sh`，只输出检测状态和候选版本，不安装、不修改工具；任一必需工具未确认时返回非零。
+- Tests：POSIX shell 语法检查；实际执行检测；输出不得含个人绝对路径；Markdown 相对链接；`git diff --check`；远端分支哈希核对。
+- Git Baseline：`5403028d255ac16d2e137454fc40513e75eb01f2`。
+- Backup Branch：`build/phase-1-bootstrap` 已在修改前推送到 `origin` 并指向开工基线。
+- Rollback Plan：P1.02 形成单一提交；失败可放弃分支或对该提交执行 `git revert`，不触碰参考归档。
+- Acceptance Criteria：检测脚本如实区分 Found/Not found/Unverified；文档记录本机实际结果、P1.03 阻塞项和构建证据命名；提交推送并核对哈希。
+- Explicit Exclusions：不安装软件、不启动 GUI、不生成 CubeMX、不编译/烧录、不连接或使能电机、不把个人路径写入仓库。
+
+## 2026-08-07 — P1.02 工具链冻结结论
+
+- Status：Complete（P1.02 检测与证据格式子范围）；Phase 1 整体仍为 Partially complete。
+- Delivered：`tools/check_toolchain.sh`、`docs/verification/TOOLCHAIN.md`、`docs/verification/builds/README.md`；并同步当前阶段、日志、交接和 L0 状态。
+- Actual Host Result：macOS arm64；STM32CubeMX、Keil MDK、Arm Compiler、STM32Cube FW_H7 均为 Not found；参考 `.ioc` 中的 FW_H7 V1.12.1 / MDK-ARM V5.32 仅记为历史候选。
+- Validation：`sh -n` Passed；脚本实际运行按设计返回 1 和 `TOOLCHAIN_STATUS=INCOMPLETE`；缺失项断言 Passed；个人路径输出扫描 Passed；36 个 Markdown 相对链接 Passed；`git diff --check` Passed。
+- First Failure：首次人工盘点因 zsh 对不存在的 `/Applications/Keil*` 通配展开报 `no matches found` 而提前退出；改为目录查找和显式候选后完整复测 Passed。
+- Firmware Validation：Not run；未生成、编译、烧录或执行目标板/台架测试。
+- P1.03 Gate：Blocked by environment；在可确认版本的 CubeMX 与匹配 FW_H7 包可用前，不替换 `.ioc`、`Core/`、`Drivers/`、`Middlewares/` 或 `MDK-ARM/`。
+- P1.05 Gate：Blocked by environment；需要可用且版本已确认的 MDK/Arm Compiler 构建环境。
+- Next：由产品负责人提供现有工具位置/Windows 构建环境，或明确授权安装所需工具；随后重新运行检测，只有状态 Complete 才进入 P1.03。

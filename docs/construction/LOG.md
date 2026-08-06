@@ -146,3 +146,44 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 ### Risks / Next Step
 
 施工树是实现契约，不是已有固件能力证明。下一步必须从 P1.02 工具链证据开始，不可跳过 P1.03 的实际构建就进入外设或电机控制阶段。
+
+## 2026-08-07 — P1.02 工具链检测与证据格式
+
+### Plan Replay
+
+从 `main` 的 `5403028d255ac16d2e137454fc40513e75eb01f2` 创建并预先推送 `build/phase-1-bootstrap`，只建立只读工具检测和构建证据格式，不安装、生成或编译。
+
+### Actual Changes
+
+- 新增 `tools/check_toolchain.sh`：检测 CubeMX、MDK、Arm Compiler 和 STM32Cube FW_H7；缺失或版本未确认时返回非零。
+- 新增 `docs/verification/TOOLCHAIN.md`：区分本机实测与参考 `.ioc` 历史声明。
+- 新增 `docs/verification/builds/README.md`：冻结构建摘要命名、必需证据和结果词。
+- 修正根 `AGENTS.md` 的当前阶段漂移；同步 P1.02 进度、交接和 L0 层级状态。
+
+### Actual Environment
+
+- Host：macOS 26.5.2，arm64。
+- STM32CubeMX：Not found。
+- Keil MDK：Not found。
+- Arm Compiler：Not found。
+- STM32Cube FW_H7 Repository：Not found。
+- Reference-only candidates：FW_H7 V1.12.1、MDK-ARM V5.32；不是当前主机安装证据。
+
+### Test Log
+
+- `sh -n tools/check_toolchain.sh`：Passed。
+- `sh tools/check_toolchain.sh`：按缺失环境契约返回 1；输出 `TOOLCHAIN_STATUS=INCOMPLETE`，四个缺失项断言 Passed。
+- 输出个人绝对路径扫描：Passed，0 命中。
+- Markdown 相对链接：Passed，36 个文件。
+- `git diff --check`：Passed。
+- CubeMX 生成、Keil 编译、烧录、目标板、台架：Not run。
+
+### Failures / Fixes / Retests
+
+- 首次只读盘点：Failed。zsh 展开不存在的 `/Applications/Keil*` 时产生 `no matches found`，后续 Repository 和参考元数据检查未执行。
+- 修复：不再用未受控应用通配，改为显式应用候选和 `find` 名称检查。
+- 复测：Passed。完整输出确认四项必需组件均未找到，并从 `.ioc` 提取到历史候选版本。
+
+### Safety / Scope Judgment
+
+P1.02 完成不表示工具链完整。由于脚本真实返回 INCOMPLETE，P1.03 和 P1.05 的环境门槛未满足；未修改任何固件、CubeMX 或 Keil 工程文件。

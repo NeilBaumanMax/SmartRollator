@@ -4,7 +4,7 @@
 
 ## Current State
 
-SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工程基线、远端和回滚点。Phase 0 完成；Phase 1 部分完成：Git 子范围完成，CubeMX/Keil 最小可复现工程尚未重新生成或编译。当前 `main` 中的参考固件可供取证，但其编译、烧录和硬件状态不能视为已验证事实。
+SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工程基线、远端、回滚点和 P1.02 工具链检测入口。Phase 0 完成；Phase 1 部分完成：当前主机未发现 CubeMX、FW_H7、MDK 或 Arm Compiler，最小可复现工程尚未重新生成或编译。当前 `main` 中的参考固件可供取证，但其编译、烧录和硬件状态不能视为已验证事实。
 
 ## Completed
 
@@ -15,9 +15,11 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 - 当前进度、日志、层级状态和模板已建立。
 - GitHub 远端、默认 `main`、bootstrap 备份和只读参考归档已建立并核对哈希。
 - Git 文件级施工树已建立：Phase 1–11 共 66 个微提交节点，逐项定义精确文件、功能/接口、测试和回滚点。
+- P1.02 已建立只读工具链检测脚本、当前主机证据和构建摘要格式；缺失环境会明确返回非零。
 
 ## Incomplete
 
+- 当前主机未发现 STM32CubeMX、STM32Cube FW_H7、Keil MDK 或 Arm Compiler；P1.03/P1.05 环境门槛未满足。
 - CubeMX/Keil 最小安全失能工程尚未在正式仓库重新生成和编译。
 - 所有固件迁移、主机测试、目标板和台架验证尚未执行。
 - 轮系、传感器、CAN 节点、时序、安全阈值和 ArUco 角色仍有未确认项。
@@ -26,9 +28,9 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 
 1. 阅读 `AGENTS.md` 和 `docs/INDEX.md` 规定的必读材料。
 2. 确认当前目录是正式 Git 工作树的仓库根目录，实时核对分支、远端和工作树。
-3. 按 `GIT_CONSTRUCTION_TREE.md` 从最新 `main` 创建并先行推送 `build/phase-1-bootstrap`。
-4. 从 P1.02 开始，确认本机 CubeMX、MDK、Arm Compiler 和 STM32Cube FW_H7 的实际版本并记录。
-5. 按 P1.03 生成最小安全失能工程并实际全量编译；保存生成清单、哈希和完整构建证据。
+3. 获取现有 CubeMX/FW_H7 与 MDK/Arm Compiler 环境的位置和版本，或取得安装/Windows 构建环境的明确授权。
+4. 重新执行 `sh tools/check_toolchain.sh`；只有 `TOOLCHAIN_STATUS=COMPLETE` 才进入 P1.03。
+5. 按 P1.03 生成最小安全失能工程；按 P1.05 实际全量编译并保存生成清单、哈希和构建证据。
 
 ## Required Reading
 
@@ -44,7 +46,8 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 
 ## Test Baseline
 
-- 文档检查：Passed（34 个 Markdown 相对链接；施工树 11 个阶段、66 个微提交节点；当前模型漂移扫描 0 命中）。
+- 文档检查：Passed（36 个 Markdown 相对链接；施工树 11 个阶段、66 个微提交节点；当前模型漂移扫描 0 命中）。
+- P1.02 工具检测：脚本语法 Passed；当前主机按设计返回 1 / `INCOMPLETE`，四项必需组件 Not found；路径脱敏 Passed。
 - 固件构建：Not established。
 - 主机测试：Not established。
 - 目标板/台架测试：Not established。
@@ -57,7 +60,7 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 - Backup Branch：`backup/bootstrap-20260807`，远端哈希与 bootstrap commit 一致。
 - Reference Archive：`reference/archive-20260807` → `a0669d7e36e54e78970e8162b0bc47334221c6c5`。
 - Push Status：Passed；完整工程已进入远端 `main`，bootstrap 和 reference archive 仍保留。
-- Working Tree：正式本地仓库为当前 Git 工作树的仓库根目录；已初始化并绑定 `origin/main`。任何旁路克隆都不再作为施工入口或事实源。
+- Working Tree：正式本地仓库为当前 Git 工作树的仓库根目录；P1.02 在 `build/phase-1-bootstrap` 施工并已于修改前推送远端回滚点。任何旁路克隆都不再作为施工入口或事实源。
 
 ## Risks
 
@@ -68,4 +71,4 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 
 ## Completion Label
 
-整体项目：Partially complete。Phase 0：Complete。Phase 1：Partially complete。下一动作：完成 Phase 1 最小工程生成和构建。
+整体项目：Partially complete。Phase 0：Complete。Phase 1：Partially complete。P1.02：Complete。下一动作：补齐并确认工具链后执行 P1.03。
