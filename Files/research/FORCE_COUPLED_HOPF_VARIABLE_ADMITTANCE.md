@@ -555,11 +555,11 @@ typedef struct {
 
 ## 15. 工作区依据
 
-- [产品需求](../product/PRODUCT_REQUIREMENTS.md)：固定导纳先行、Hopf CPG 独立接入、V1 不含人体试验。
-- [系统架构](../construction/ARCHITECTURE.md)：控制域纯 C，所有电机输出经过安全仲裁。
-- [施工计划](../construction/CONSTRUCTION_PLAN.md)：Phase 7 固定导纳、Phase 8 Hopf、Phase 9 集成、Phase 10 视觉与可观测性。
-- [假设清单](../construction/ASSUMPTIONS.md)：力坐标、轮系参数、Hopf 参数和视觉角色仍待验证。
-- [参考工程交接](../handover/PROJECT_HANDOVER.md)：当前力协议、CPG 参数、日志与未闭环功能的取证总结。
+- [产品需求](../../docs/product/PRODUCT_REQUIREMENTS.md)：固定导纳先行、Hopf CPG 独立接入、V1 不含人体试验。
+- [系统架构](../../docs/construction/ARCHITECTURE.md)：控制域纯 C，所有电机输出经过安全仲裁。
+- [施工计划](../../docs/construction/CONSTRUCTION_PLAN.md)：Phase 7 固定导纳、Phase 8 Hopf、Phase 9 集成、Phase 10 视觉与可观测性。
+- [假设清单](../../docs/construction/ASSUMPTIONS.md)：力坐标、轮系参数、Hopf 参数和视觉角色仍待验证。
+- [参考工程交接](../../docs/handover/PROJECT_HANDOVER.md)：当前力协议、CPG 参数、日志与未闭环功能的取证总结。
 - `MDK-ARM/torque_sensor.c`：当前解析两组 XYZ 力数据。
 - `MDK-ARM/cpg_control.c`：当前单 Hopf、单阻尼和单速度状态参考实现。
 - `MDK-ARM/Controller.c`：当前仅使用一组 `F_x` 并输出共同轮速。
