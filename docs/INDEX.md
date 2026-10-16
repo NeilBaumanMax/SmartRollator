@@ -17,6 +17,8 @@
 
 ## 管理与验证
 
+- [全工作区备份记录](verification/workspace-backup/README.md)：上层资料归并、全部普通文件清单和 GitHub 核验方法。
+
 - [施工工作流](construction/WORKFLOW.md)：一次阶段如何开始、实施、验收和结束。
 - [Git 与回滚](construction/GITHUB_ROLLBACK.md)：仓库、分支、提交、远端备份和恢复规则。
 - [Git 文件级施工树](construction/GIT_CONSTRUCTION_TREE.md)：逐微提交列出精确文件、功能、接口、测试和回滚点。

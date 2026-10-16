@@ -1,0 +1,15 @@
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+smartrollator\queue.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+smartrollator\queue.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+smartrollator\queue.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+smartrollator\queue.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+smartrollator\queue.o: ../Core/Inc/FreeRTOSConfig.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+smartrollator\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h

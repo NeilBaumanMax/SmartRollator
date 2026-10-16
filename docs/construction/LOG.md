@@ -264,3 +264,21 @@ DOCX 共 9 份，SHA-256 均不同。应用说明三版正文高度一致、主�
 同步 AGENTS、README、目录地图、开工入口、HANDOFF、Git 规则、施工树及 L0 说明，消除“尚未合入 main”的当前状态声明。历史条目不重写。当前开发入口改为 main，不代表工具链或固件阶段验收完成。
 
 最近检查：祖先关系通过；非本轮文档的全部已有文件哈希保持一致；Markdown 本地链接与 diff 空白检查通过。工程代码、参考资产、本地未跟踪研究笔记均未改动；未运行生成、编译、烧录或硬件测试。交付使用 main 快进合并与普通推送，最后核对本地 main、origin/main 和远端 main 哈希；禁止强推。
+
+## 2026-10-16 — 上层资料归并与全量 GitHub 备份
+
+### Plan / Changes
+
+开工 main/origin/main 为 6a5aaf7；远端 backup/before-complete-workspace-20261016 保存该提交。盘点 1767 个普通文件、158 个原未跟踪/忽略文件，待补 100203295 字节。上层 4 份文档/HTML 与现有 Git 内容完全相同，按 SHA-256 归并；原上层 .DS_Store 移至 Files/local-state/parent-folder.DS_Store，原路径、动作、哈希记录在 parent-import.tsv。
+
+用户最新全量备份要求覆盖原排除政策。研究笔记、旧对象/镜像/日志、IDE 状态、预览和系统元数据均按原路径纳入；仅 .git 内部 Git 数据不重复提交。全部新候选未命中私钥/常见令牌/凭据赋值扫描；现有配置路径按完整现场快照保留。全量快照不代表工具链、构建或实机验收通过。
+
+### First Failures / Fixes / Retests
+
+- 首次读取 git diff --cached --check 输出时，Python text=True 以 UTF-8 解码旧 Keil 内容失败：`UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb5 in position 1864: invalid start byte`。改用原始 bytes 捕获，展示时采用替换解码，文件原字节不变。
+- 完整空白检查返回 2，33294 行诊断；旧 Keil 文本包含历史行尾/空白。将旧输出、IDE 状态和系统元数据声明为 binary 快照，禁止自动换行/文本合并；复测仅剩研究笔记第 3、4 行的 Markdown 行尾双空格。
+- 这两处是原文硬换行；只对该研究文件使用 whitespace=-blank-at-eol，保留原文。再次 git diff --cached --check 返回 0。未为消除诊断修改任何旧输出或研究内容。
+
+### Verification / Delivery
+
+对全部普通文件生成 files.sha256（自身由 Git blob 核验），按明确逐文件列表暂存；校验原工程/参考文件哈希、磁盘与 Git 树路径集合、提交对象内容、文档链接和 Keil 引用。最终推送 main 后独立浅抓取 GitHub main，再比较完整树及逐文件 SHA-256，确认没有未跟踪或忽略的遗漏文件。此过程不运行固件、编译、串口或硬件测试。远端核验结果由交付时实际输出确认；若失败不能报告完成。

@@ -1,0 +1,11 @@
+# Historical local-state/output snapshots: preserve original bytes, encodings
+# and line endings on every platform. Do not text-merge generated artifacts.
+MDK-ARM/SmartRollator/** binary
+MDK-ARM/.vscode/** binary
+MDK-ARM/*.uvguix.* binary
+MDK-ARM/*.uvoptx binary
+MDK-ARM/startup_stm32h723xx.lst binary
+**/.DS_Store binary
+Files/local-state/parent-folder.DS_Store binary
+# Preserve the original Markdown hard line breaks in the imported research note.
+Files/research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md whitespace=-blank-at-eol

@@ -190,3 +190,22 @@
 - 原 main 备份：backup/main-before-promotion-20261016 → 5403028d255ac16d2e137454fc40513e75eb01f2。
 - 验收：仅文档修改；工程及参考文件保持原样；main 快进、推送及本地/远端哈希核对作为交付检查。
 - Files/research 继续未跟踪，未纳入推送；Phase 1 整体仍为 Partially complete。
+
+## 2026-10-16 — 上层资料归并与全工作区备份开工
+
+- Objective：按用户最新指令，将上层目录资料归入当前工作区，并将当前工作区全部普通文件备份 GitHub，不遗留未跟踪或忽略文件。
+- Baseline：main/origin/main 均为 6a5aaf7087cbc1b2267ba4b048193a0482a4f23c。盘点 1767 个文件，158 个尚未跟踪（含原忽略项），总计约 100 MB 待补；Git 数据库 .git 属于仓库内部元数据，不递归纳入工作区文件清单。
+- Scope：上层 4 份内容相同资料归并至既有路径；上层 Finder 元数据单独保存；研究笔记、旧构建输出、IDE 状态、预览和系统元数据按现状纳入；同步忽略政策、AGENTS、索引和交接。
+- Backup：远端 backup/before-complete-workspace-20261016 保存开工提交；全部原文件 SHA-256 已留本地核对快照。
+- Tests：来源/目标哈希、全目录与 Git 索引集合相等、提交对象内容一致、凭据模式检查、文档链接、Keil 引用、远端快照内容核对；最终 tracked 工作树干净，untracked 和 ignored 均为零。
+- Exclusions：不重新生成或编译，不烧录/连接硬件；旧产物不作为当前固件通过证据；不递归提交 .git 内部文件。
+- Policy Override：用户最新“全部备份”覆盖此前不提交构建缓存、IDE 状态和本地研究笔记的项目规则。本轮扫描新增候选未命中凭据模式；原始本地路径配置按完整快照保留，不作为可移植配置示例。
+- Rollback：可从远端备份创建恢复分支；本次清单记录原上层路径、目标与哈希，便于恢复。
+
+## 2026-10-16 — 全量备份实施与验证范围
+
+- 上层 4 份资料与已有已跟踪内容完全相同，核对源/目标/Git blob 后归并；上层 Finder 元数据移入 Files/local-state，映射见 parent-import.tsv。
+- 原 158 个未跟踪/忽略文件均纳入；.gitignore 不再排除旧构建物、IDE 状态、预览或元数据；研究笔记已跟踪。
+- 原始 Keil 状态以 binary 属性保护字节及编码；研究 Markdown 原有硬换行保留。首轮检查解码错误与空白诊断、修复与复测详见 LOG。
+- 备份清单 files.sha256 覆盖除清单自身外的全部普通文件；自身由 Git blob 核验。最终必须满足磁盘/提交路径一致、内容一致、untracked 与 ignored 均为零，并独立抓取远端 main 验证。
+- 所有源代码和既有资料按原始字节保留，不生成或验证新固件；Phase 1 仍为 Partially complete。

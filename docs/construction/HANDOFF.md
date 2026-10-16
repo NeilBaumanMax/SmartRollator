@@ -14,7 +14,8 @@
 - STM32：根 `.ioc`、`.mxproject`、Core、Drivers、Middlewares、MDK-ARM。当前业务模块在 MDK-ARM，任务集成在 Core/Src/freertos.c。
 - 根 App、Tests、CMakeLists.txt 尚未建立；没有 firmware 目录。
 - [Files 全索引](../../Files/ASSET_INDEX.md)覆盖当前跟踪参考材料；其中 legacy-workspace 的工具、C/HITL 测试与 GCC Makefile 仍为待适配模板。
-- Files/research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md 当前只存在于本地未跟踪状态；保留，不混入本轮提交。
+- Files/research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md 已按用户最新“全部备份”指令纳入 GitHub；不再有仅本地保留的研究笔记。
+- 当前工作区普通文件（含旧输出、IDE 状态、预览和系统元数据）均按原路径备份；上层 4 份资料归并至已有相同文件，元数据移入 Files/local-state。清单与边界见 [完整备份记录](../verification/workspace-backup/README.md)。
 - [DOCX 版本记录](../../Files/DUPLICATES.md)列出保留项、移除项、依据与恢复点。旧生成器可能重新输出旧版或覆盖人工修订，不能默认执行。
 
 ## Test Baseline
@@ -28,6 +29,7 @@
 
 - Remote：`git@github.com:NeilBaumanMax/SmartRollator.git`。
 - 当前施工分支：`main`，按用户明确指令承接当前完整状态并继续开发；原 `build/phase-1-bootstrap` 保留。
+- 全量备份开工基线：`6a5aaf7087cbc1b2267ba4b048193a0482a4f23c`；远端 `backup/before-complete-workspace-20261016` 保留该状态。
 - 本次提升的已交付基线：`ac0c0d30abd368e4124d01d10e91176c724dd8d6`（原阶段分支）；另附本轮主分支状态文档提交。
 - 提升前 main：`5403028d255ac16d2e137454fc40513e75eb01f2`，已保存到远端 `backup/main-before-promotion-20261016`。
 - 提升方式：快进合并，无强制推送、不删除历史。最新主分支哈希通过 `git log -1` 和 `git ls-remote origin refs/heads/main` 实时核对。
@@ -38,7 +40,7 @@
 
 ## Next Tasks
 
-1. 确认当前为 main 并与 origin/main 同步；按 docs/INDEX.md 的唯一顺序读取，盘点 tracked、untracked，必要时分类 ignored 文件。
+1. 确认当前为 main 并与 origin/main 同步；按 docs/INDEX.md 的唯一顺序读取，同时核对 tracked/untracked/ignored，全量备份不得静默遗漏文件。
 2. 提供或确认 CubeMX 与匹配 FW_H7、MDK 与 Arm Compiler 的位置和版本；需要安装时按用户授权处理。
 3. 重跑工具链探测并保存结果；P1.03 的前置条件为 CubeMX/FW_H7 版本确认，P1.05 另需 MDK/编译器。完整探测 COMPLETE 表示四项均确认，不改变分阶段门槛。
 4. 按施工树生成最小安全失能工程与清单，之后实际全量编译；不要先推进控制算法或电机阶段。

@@ -15,7 +15,7 @@
 | `MDK-ARM/torque_sensor.c/.h`、`user_can.c/.h`、`data_structs.h` | 传感器、CANopen、公共数据结构参考实现 |
 | `tools/check_toolchain.sh` | 只读工具链检测；缺失/版本未确认返回 1 |
 
-`MDK-ARM/` 下现有编译输出和 IDE 用户状态可能被 Git 忽略。它们不作为当前通过证据，也不因整理参考资料而删除。
+按用户最新全量备份指令，`MDK-ARM/` 下旧编译输出、IDE 状态及日志现已按原路径跟踪；不作为当前通过证据。完整覆盖范围见 [全工作区备份记录](verification/workspace-backup/README.md)。
 
 ## 文档和参考材料
 
@@ -27,12 +27,13 @@
 | `docs/verification/` | 工具链证据及构建记录规范；记录日期与测试边界 |
 | `docs/handover/` | 旧交接 Markdown，仅历史参考 |
 | `Files/` | 保留的 DOCX、两份 HTML 演示、[全量参考资产索引](../Files/ASSET_INDEX.md) |
-| `Files/generated_docs/`、`Files/diagrams/` | 专题报告及配图；预览缓存被忽略 |
+| `Files/generated_docs/`、`Files/diagrams/` | 专题报告、配图及原始预览缓存；均纳入备份 |
 | `Files/tools/` | 文档生成器与字体配置；不属于固件工具链 |
 | `Files/hardware/` | 设备手册；实物型号/协议适用性待核实 |
 | `Files/handover/` | 旧交接 Word，未同步当前施工状态 |
 | `Files/legacy-workspace/` | 补入的旧架构/接口/图示、串口/调试工具、C/HITL 测试及 GCC 模板；[适配缺口](../Files/legacy-workspace/README.md) |
-| `Files/research/` | 本地未跟踪研究笔记；当前有 FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md，干净克隆不保证存在 |
+| `Files/research/` | 已跟踪研究笔记 FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md；随 GitHub 备份提供 |
+| `Files/local-state/` | 上层目录原始 Finder 元数据及说明 |
 | `reference_manifest.sha256` | 只读历史参考归档清单，原路径仅对归档版本有效 |
 
 ## 计划目录与现状的区别

@@ -15,7 +15,8 @@
 | `diagrams/` | 研究与实验设计图表 |
 | [handover/SmartRollator项目交接与Git重建指南.docx](handover/SmartRollator项目交接与Git重建指南.docx) | 历史交接 Word 版本 |
 | `tools/` | 五个文档生成 Python 脚本和字体配置 |
-| `research/`（本地） | 整理前未跟踪的研究笔记；保留未提交状态，不属于本次提交内容 |
+| `research/` | 已纳入 GitHub 全量备份的研究笔记 |
+| `local-state/` | 上层目录原始元数据；工作区其他状态文件按原路径备份 |
 
 ## 从另一工作区补入的资料
 

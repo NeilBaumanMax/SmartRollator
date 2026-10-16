@@ -67,7 +67,7 @@ main
 | `Core/` | CubeMX 入口 | 只允许生成内容和 USER CODE 钩子；业务逻辑不得堆入 |
 | `Drivers/` | 厂商生成/第三方 | 由 CubeMX 固件包生成；不做业务修改 |
 | `Middlewares/` | FreeRTOS/第三方 | 由固定包生成；本地配置通过 `Core/Inc/FreeRTOSConfig.h` |
-| `MDK-ARM/` | Keil 工程 | 跟踪可移植工程、启动和链接配置；排除用户状态和输出 |
+| `MDK-ARM/` | Keil 工程 | 工程、启动和链接配置保持原结构；按最新全量备份指令同时保存原用户状态和旧输出，但不作为验证证据 |
 | `App/common/` | 跨层类型 | 单位、错误码、时间戳、有效性；不得依赖 HAL/RTOS |
 | `App/platform/` | L0 适配 | 封装 HAL/RTOS 资源，不包含协议或控制数学 |
 | `App/devices/` | L1 协议设备 | 字节编解码、设备状态，不包含控制策略 |

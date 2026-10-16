@@ -1,0 +1,12 @@
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/list.c
+smartrollator\list.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+smartrollator\list.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+smartrollator\list.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+smartrollator\list.o: ../Core/Inc/FreeRTOSConfig.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+smartrollator\list.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h

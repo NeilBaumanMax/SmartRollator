@@ -1,28 +1,7 @@
-.DS_Store
-.vscode/
-*.uvguix.*
-*.uvoptx
-
-# Keil build outputs
-MDK-ARM/SmartRollator/
-MDK-ARM/Objects/
-MDK-ARM/Listings/
-*.o
-*.d
-*.crf
-*.axf
-*.hex
-*.map
-*.lst
-*.build_log.htm
-
-# Generated previews and caches
-Files/generated_docs/render_*/
-Files/generated_docs/ql_*/
-__pycache__/
-*.pyc
-
-# Local secrets and environment files
+# Full-workspace backup policy (2026-10-16).
+# Source, research notes, IDE state, build outputs, previews and OS metadata
+# are tracked on explicit user request; none are silently excluded.
+# Credentials must still be reviewed before upload. Current inventory has none.
 .env
 .env.*
 !.env.example

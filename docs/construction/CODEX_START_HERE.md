@@ -14,7 +14,7 @@
 pwd
 git ls-files
 git ls-files --others --exclude-standard
-rg --files --hidden -g '!.git/**' -g '!.DS_Store'
+rg --files --hidden -g '!.git/**'
 git rev-parse --show-toplevel
 git status --short --branch
 git remote -v
