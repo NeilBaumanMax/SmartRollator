@@ -4,15 +4,16 @@
 
 ## 强制阅读顺序
 
-1. [开工入口](construction/CODEX_START_HERE.md)
-2. [总需求与硬约束](construction/CODEX_MASTER_REQUIREMENTS.md)
-3. [产品需求](product/PRODUCT_REQUIREMENTS.md)
-4. [系统架构](construction/ARCHITECTURE.md)
-5. [分阶段施工计划](construction/CONSTRUCTION_PLAN.md)
-6. [当前进度](construction/DEV_PROGRESS.md)
-7. [当前交接](construction/HANDOFF.md)
-8. [Git 文件级施工树](construction/GIT_CONSTRUCTION_TREE.md)
-9. 当前阶段对应的[分层进度文档](construction/progress/layers/README.md)
+1. 根 [AGENTS.md](../AGENTS.md) 与[开工入口](construction/CODEX_START_HERE.md)
+2. [当前目录地图](WORKSPACE_MAP.md)与 [Files 资产全索引](../Files/ASSET_INDEX.md)，覆盖工程、隐藏配置、参考资料和本地未跟踪资料入口
+3. [总需求与硬约束](construction/CODEX_MASTER_REQUIREMENTS.md)
+4. [产品需求](product/PRODUCT_REQUIREMENTS.md)
+5. [系统架构](construction/ARCHITECTURE.md)与[分层契约](construction/LAYER_CONTRACT.md)
+6. [分阶段施工计划](construction/CONSTRUCTION_PLAN.md)与 [Git 文件级施工树](construction/GIT_CONSTRUCTION_TREE.md)
+7. [当前进度](construction/DEV_PROGRESS.md)与[当前交接](construction/HANDOFF.md)
+8. [分层进度入口](construction/progress/layers/README.md)，当前阶段读 [00 仓库与工程基础](construction/progress/layers/00-foundation.md)
+
+目录地图描述现在存在的内容；施工树还包含未来计划。历史资料的“已完成”和路径声明不构成当前状态。
 
 ## 管理与验证
 
@@ -35,6 +36,7 @@
 ## 历史与参考材料
 
 - [补入的历史开发资料与工具模板](../Files/legacy-workspace/README.md)：只作参考，未接入正式构建或测试。
+- [DOCX 版本核对与清理记录](../Files/DUPLICATES.md)：重复主题、保留版本、旧版哈希和恢复点。
 - [Files 参考材料目录](../Files/README.md)：Word、HTML、配图和生成脚本；与 STM32 工程分开存放。
 
 - [既有项目交接](handover/PROJECT_HANDOVER.md)：用于理解现有参考固件；其中独立目录方案已被 ADR-007 取代，不代表当前验证状态。

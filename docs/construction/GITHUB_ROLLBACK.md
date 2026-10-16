@@ -4,7 +4,7 @@
 
 - 正式本地仓库：当前 Git 工作树的仓库根目录，也是当前工程工作目录。
 - GitHub 远端：`git@github.com:NeilBaumanMax/SmartRollator.git`。
-- `main` 保存治理文档和完整工程基线，后续施工均从该仓库创建阶段分支。
+- `main` 保存治理文档和完整工程基线，阶段工作在独立分支推进；当前已有 build/phase-1-bootstrap，不自动切回 main 或重建同名分支，先核对 HANDOFF 和实时 Git 状态。
 - 早期按旧交接方案建立的旁路辅助克隆不再作为正式施工入口或事实源。
 - 旧工程首次纳入 Git 前的证据仍由 `reference/archive-20260807` 和 `reference_manifest.sha256` 保留。
 
@@ -36,7 +36,7 @@ build/phase-N-short-name    D--E...   后续阶段施工
 
 - `SmartRollator.ioc`、`Core/`、`Drivers/`、`Middlewares/`。
 - 可移植的 Keil 工程定义、启动文件、链接配置和手写模块。
-- `AGENTS.md`、`README.md`、`docs/`、`tools/`、算法演示、研究说明和必要图表。
+- `AGENTS.md`、`README.md`、`docs/`、工程 `tools/`，以及集中于 `Files/` 的算法演示、研究说明、生成器和必要图表。旧归档仍保留归档时路径，不追改清单。
 - `reference_manifest.sha256`，记录归档候选文件的 SHA-256，便于证明旧参考内容未被误改。
 
 ### 必须排除

@@ -33,6 +33,8 @@ main
 
 `reference/archive-*` 不合入 `main`。`main` 中现有固件是参考基线，不代表当前构建或硬件通过。后续每个阶段从最新已验收 `main` 创建分支；一个微提交只承担下表中的一个节点。
 
+2026-10-16 当前施工分支为 `build/phase-1-bootstrap`：已完成 P1.02 入口以及 Files 资料整理/补全；尚未合入 main。当前节点状态见 HANDOFF，以下仍是计划拓扑。
+
 ## 3. 分支与提交拓扑
 
 ```text
@@ -56,6 +58,8 @@ main
 表内 `path/name.h/.c` 是精确双文件简写，严格表示 `path/name.h` 与 `path/name.c`，不表示目录通配。表内“最近测试”列出现的仓库相对文件路径也属于该节点的精确提交范围：文件尚不存在时同节点创建，已存在时同节点修改。目录级厂商生成物仅允许按 4.1 节的生成清单展开。
 
 ## 4. 目录责任与创建规则
+
+本节同时列出已存在目录和未来目标：Core/Drivers/Middlewares/MDK-ARM、docs、Files 和 tools 已存在；根 App、Tests 和 CMakeLists.txt 尚未建立。当前手写模块在 MDK-ARM，业务任务集成在 Core/Src/freertos.c。真实布局以 [目录地图](../WORKSPACE_MAP.md) 为准，不能将下表全部读作已交付。
 
 | 路径 | 类型 | 创建/修改规则 |
 |---|---|---|

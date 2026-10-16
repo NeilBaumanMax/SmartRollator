@@ -233,3 +233,26 @@ P1.02 完成不表示工具链完整。由于脚本真实返回 INCOMPLETE，P1.
 ### Delivery / Rollback
 
 精确暂存新增资产、导航及施工记录，不包含 `Files/research/`。本轮单一提交在当前 `build/phase-1-bootstrap` 分支交付，提交后推送并核对远端哈希。回滚父提交 `1d79da55aa25c312103c8c84f9c74c8516df0c39`；不推进 Phase 1 工程验收。
+
+## 2026-10-16 — 文档漂移修正、Agent 导航和 DOCX 版本收敛
+
+### Findings / Changes
+
+当前 main 远端为 5403028，实际施工分支为 build/phase-1-bootstrap，开工 HEAD 为 1a9f299；旧页面未充分区分。根 App/Tests/CMakeLists.txt 是规划，现有业务在 MDK-ARM，资料和旧模板在 Files。修正 AGENTS、INDEX 与开工入口，新增 WORKSPACE_MAP 和 ASSET_INDEX，重写 HANDOFF 当前摘要并更新工具链、README、Git/层级/施工树说明；历史进度、原始导入内容和清单不改写。
+
+DOCX 共 9 份，SHA-256 均不同。应用说明三版正文高度一致、主要区别为公式修订；留 LaTeX 版。参数两版为同用途改写，较新的 generated_docs 版本包含扩展内容；按用户指令留新，旧版独有行文/图表可从备份恢复。3 份旧文件移除，6 份保留内容不变。未编辑或重生成 Word，未宣称完成视觉排版验收。
+
+### Tests / Evidence
+
+- DOCX OOXML 只读解析：9 份 ZIP 正文、公式对象、媒体与 core properties；排除 2013 年 python-docx 默认时间，结合内容及本轮文件时间做版本判断。依据及旧文件 SHA-256 完整列于 Files/DUPLICATES.md。
+- SHA-256 前后核对：1669 个工程/工具/归档受保护文件不变；6 份保留 DOCX 不变；此前参考资产除已说明文档改动及 3 份删除外保持原样。
+- 当前 Files 48 项资产（含全索引自身）字节重复组 0；ASSET_INDEX 显式覆盖其余 47 项。本地研究笔记与忽略预览单列，未静默漏掉。
+- Keil XML 路径：49 个文件引用与 17 个包含目录条目全部存在。
+- Markdown：154 个本地链接通过；AGENTS/INDEX/开工入口阅读顺序一致；实际目录和未来目录均有说明。
+- `sh tools/check_toolchain.sh` 输出：HOST_OS=Darwin，HOST_ARCH=arm64；STM32CUBEMX、KEIL_MDK、ARM_COMPILER、STM32CUBE_FW_H7 均 NOT_FOUND；TOOLCHAIN_STATUS=INCOMPLETE，退出 1。这是缺失环境的预期返回，不是测试误报成功。
+- `git diff --check`：Passed。以上首次检查通过，无失败修复重测项。
+- 固件生成、编译、C 主机单测、串口、烧录和硬件验证：Not run。
+
+### Git / Recovery
+
+远端备份 backup/before-docs-dedup-20261016 → 1a9f299e6498579e5dbb4e9f03972e1ace270814 已核对，包含全部删除前 DOCX。精确暂存本轮文件，当前阶段分支提交后推送并核对远端。Files/research 原未跟踪笔记继续保留本地，不纳入提交。

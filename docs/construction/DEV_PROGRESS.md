@@ -153,3 +153,22 @@
 - Validation：23 份来源未改、复制哈希一致、无与现有资产重复内容；既有工程和资产保持原样；2 个 Python、2 个 shell 语法通过；5 个 SVG XML、DOCX ZIP/XML 和 2 个 PDF 头尾结构检查通过；72 个 Markdown 本地链接通过。
 - Limitations：未编译 C 测试，不执行模板、串口、烧录、调试或硬件测试；不将资料说明作为当前硬件/固件通过证据；Phase 1 仍为 Partially complete。
 - Backup：远端 `backup/before-reference-import-20261016` 已核对为 `1d79da55aa25c312103c8c84f9c74c8516df0c39`。
+
+## 2026-10-16 — 文档漂移修正与 DOCX 版本收敛开工
+
+- Objective：统一实际目录、当前分支、工程与参考资产边界；让 Agent 能按索引覆盖全部资料；列明 DOCX 重复主题版本并保留最新。
+- Baseline：`build/phase-1-bootstrap`，起点 `1a9f299e6498579e5dbb4e9f03972e1ace270814`；远端同哈希，已有 `Files/research/` 未跟踪。
+- Scope：AGENTS、README、文档导航、目录地图、当前交接/工具链/L0/施工树相关说明、参考资产全索引、DOCX 去重报告；移除两组中的 3 份旧版 DOCX。
+- Backup：先推送 `backup/before-docs-dedup-20261016`；原始文件可从该备份按路径恢复。
+- Tests：DOCX ZIP/正文/公式/元数据比对；全文件哈希去重；工程与保留资产哈希不变；Markdown 链接和资产导航覆盖率；工具链只读探测；Git 差异与远端哈希。
+- Exclusions：不修改 STM32、生成脚本或保留 DOCX 内容；不重生成/编译/烧录；不改写历史日志和导入清单；未跟踪研究笔记保留原状态。
+- Rollback：本轮单一文档/资产整理提交可 revert；不使用破坏性恢复。
+
+## 2026-10-16 — 文档漂移修正与 DOCX 版本收敛验证结论
+
+- Delivered：统一 AGENTS/INDEX 阅读顺序，新增目录地图和 47 项 Files 资产索引（不含索引自身）；更新 README、HANDOFF、工具链证据、施工树、分层契约、Git 规则、ADR 和 L0 进度。当前分支与 main、实际目录与未来 App/Tests、正式工具与历史模板均已区分。
+- DOCX：9 份无字节相同副本；应用说明 3 版留最新 LaTeX 版，参数详解 2 版留 2026-06-04 扩展版，共移除 3 份旧主题版本、保留 6 份；具体差异、时间证据限制和旧哈希见 Files/DUPLICATES.md。
+- Validation：1669 个受保护文件 SHA-256 不变；6 份保留 DOCX 字节不变；49 个 Keil 文件引用/17 个包含目录条目存在；154 个 Markdown 本地链接通过；索引覆盖全部 48 个当前受跟踪/本轮新增 Files 资产（含索引自身）；参考资产哈希完全重复组 0。
+- Toolchain：2026-10-16 运行 `sh tools/check_toolchain.sh`，退出 1，四项 NOT_FOUND / INCOMPLETE，符合检测契约；不代表系统全部位置均无安装。
+- Firmware：Not run；未重生成、编译、烧录或实机验证，不改变 Phase 1 整体验收状态。
+- Rollback：远端 backup/before-docs-dedup-20261016 已核对为 1a9f299e6498579e5dbb4e9f03972e1ace270814；本轮独立提交可回滚，研究笔记仍为本地未跟踪。

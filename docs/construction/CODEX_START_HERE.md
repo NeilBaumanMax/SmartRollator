@@ -6,20 +6,15 @@
 
 ## 开工阅读顺序
 
-1. 根目录 `AGENTS.md`
-2. `CODEX_MASTER_REQUIREMENTS.md`
-3. `../product/PRODUCT_REQUIREMENTS.md`
-4. `ARCHITECTURE.md` 与 `LAYER_CONTRACT.md`
-5. `CONSTRUCTION_PLAN.md`
-6. `GIT_CONSTRUCTION_TREE.md`
-7. `DEV_PROGRESS.md` 与 `HANDOFF.md`
-8. 当前阶段对应的 `progress/layers/*.md`
+唯一顺序见 [docs/INDEX.md](../INDEX.md)。先读根 AGENTS、[目录地图](../WORKSPACE_MAP.md)和 [Files 全索引](../../Files/ASSET_INDEX.md)，再读需求、架构、施工树、当前进度与交接和当前层级。不要把旧工作区的 AGENT_CONTEXT 当作施工入口。
 
 ## 第一次接手时必须检查
 
 ```bash
 pwd
-rg --files -g 'AGENTS.md' -g 'docs/**' | sort
+git ls-files
+git ls-files --others --exclude-standard
+rg --files --hidden -g '!.git/**' -g '!.DS_Store'
 git rev-parse --show-toplevel
 git status --short --branch
 git remote -v
@@ -49,7 +44,7 @@ git log --oneline --decorate -8
 
 ## 当前起点
 
-- 当前目录是正式本地 Git 仓库，`main` 保存完整工程基线与施工文档。
+- 当前目录是正式本地 Git 仓库；实际施工在 `build/phase-1-bootstrap`。`main` 保存早期完整基线，尚未合入本阶段工具链与 Files 整理；不要为了接手而自动切回 main。
 - `reference/archive-20260807` 保存纳入 Git 前的只读参考快照；不能作为当前构建通过证据。
 - Git/远端/回滚基线已建立；最小可复现 CubeMX/Keil 构建仍未建立。
 - 下一步是完成 Phase 1 的工具链冻结、最小安全失能工程和真实全量编译。

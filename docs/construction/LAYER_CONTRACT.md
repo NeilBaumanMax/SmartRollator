@@ -21,6 +21,8 @@
 
 ## 代码位置建议
 
+以下是分阶段重建的目标目录，不是当前完整实现清单。根 App/、Tests/ 尚未建立；当前参考模块在 MDK-ARM/，任务集成在 Core/Src/freertos.c。真实布局见 [目录地图](../WORKSPACE_MAP.md)。
+
 ```text
 Core/                  CubeMX 生成入口与 USER CODE 钩子
 Drivers/               STM32/HAL 第三方驱动
