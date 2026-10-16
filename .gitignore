@@ -17,8 +17,8 @@ MDK-ARM/Listings/
 *.build_log.htm
 
 # Generated previews and caches
-generated_docs/render_*/
-generated_docs/ql_*/
+Files/generated_docs/render_*/
+Files/generated_docs/ql_*/
 __pycache__/
 *.pyc
 

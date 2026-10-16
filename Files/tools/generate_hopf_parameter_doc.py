@@ -11,7 +11,7 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
 
 
-ROOT = Path("/Users/neil/项目/SmartRollator/SmartRollator")
+ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "Hopf振荡器参数详解_助行车应用版.docx"
 DIAGRAM_DIR = ROOT / "diagrams"
 LIMIT_CYCLE_IMG = DIAGRAM_DIR / "hopf_parameter_limit_cycle.png"

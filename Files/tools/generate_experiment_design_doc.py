@@ -12,8 +12,8 @@ from docx.shared import Inches, Pt, RGBColor
 from PIL import Image, ImageDraw, ImageFont
 
 
-ROOT = Path("/Users/neil/项目/SmartRollator/SmartRollator")
-DOC_DIR = Path("/Users/neil/Documents")
+ROOT = Path(__file__).resolve().parents[1]
+DOC_DIR = ROOT
 OUT = DOC_DIR / "智能助行器Hopf-CPG变导纳控制实验设计与数据处理方案.docx"
 DIAGRAM_DIR = ROOT / "diagrams"
 FLOW_IMG = DIAGRAM_DIR / "experiment_design_flow.png"

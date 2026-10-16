@@ -7,3 +7,7 @@
 - Evidence：`main` bootstrap `f34420f9`；`backup/bootstrap-20260807` 同哈希；`reference/archive-20260807` 为 `a0669d7e`；远端引用已核对；P1.02 脚本语法/缺失契约/路径脱敏 Passed，当前主机四项必需工具均为 Not found。
 - Next Action：提供或授权建立 CubeMX + 匹配 FW_H7、MDK + Arm Compiler 环境，重跑检测至 Complete 后进入 P1.03。
 - Status：Partially complete。
+
+## 2026-10-16 工作区整理
+
+参考 DOCX、HTML、生成脚本和图表归入 `Files/`；施工 `docs/` 与工具链脚本保留。1669 个受保护文件哈希与移动前一致，Keil 49 个文件引用及 17 个包含目录条目存在。本轮只确认文件与路径完整，未执行固件构建或硬件测试，Phase 1 状态仍为 Partially complete。

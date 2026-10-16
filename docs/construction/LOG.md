@@ -187,3 +187,26 @@ Git baseline、branch、commit、push：Not established。本阶段未初始化 
 ### Safety / Scope Judgment
 
 P1.02 完成不表示工具链完整。由于脚本真实返回 INCOMPLETE，P1.03 和 P1.05 的环境门槛未满足；未修改任何固件、CubeMX 或 Keil 工程文件。
+
+## 2026-10-16 — 工作区参考材料归入 Files
+
+### Plan Replay / Actual Changes
+
+用户要求优先保全 STM32 工程并分离对话参考材料。开工时 `build/phase-1-bootstrap` 与远端均为 `4f5af0a`，仅 `docs/research/` 未跟踪。先保存本地哈希快照，推送并核对 `backup/workspace-before-files-20261016`，再移动 26 个本地资产到 `Files/`。STM32 工程、工具链检测入口与历史归档清单保持原样。
+
+3 个生成脚本修正路径：两个取消个人目录硬编码，交接生成器继续读取原 `docs/handover/` Markdown 并输出到 `Files/handover/`；另两个脚本随移动自然解析到 `Files/generated_docs/`。更新预览忽略规则、README、文档索引、施工树、进度、交接和 L0 状态。未跟踪研究笔记只移动，不纳入提交；原有两个忽略的预览和 `.DS_Store` 仍不提交。
+
+### Test Log
+
+- Python SHA-256 检查：1669 个受保护文件全部一致；23 个仅移动文件内容一致，3 个路径调整脚本审查通过。
+- Python XML 解析 `MDK-ARM/SmartRollator.uvprojx`：49 个 FilePath 和 17 个 IncludePath 条目存在。
+- Python AST/compile 与路径赋值检查：5 个生成器语法有效、输入存在、输出均位于 Files。未执行生成器，未覆盖现有报告。
+- Markdown 本地链接：43 项通过；2 个 HTML 展示页无缺失本地资源引用。
+- `sh -n tools/check_toolchain.sh`：Passed；未重跑环境探测，历史工具安装状态不作为本轮新事实。
+- `git diff --check`：Passed。
+- 首次失败/修复/复测：无，首轮检查通过。
+- CubeMX 生成、Keil 编译、烧录、目标板、台架：Not run。
+
+### Rollback / Git Delivery
+
+回滚基线为远端 `backup/workspace-before-files-20261016` 的 `4f5af0a6059f3061b00c421e75340eca4bf92257`。本次精确暂存已跟踪资产的旧新路径和治理文档，不包含研究笔记及预览缓存；提交后推送当前阶段分支并核对远端 HEAD。历史 `reference_manifest.sha256` 不改写，其路径仍对应只读归档分支。

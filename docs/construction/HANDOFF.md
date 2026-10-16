@@ -1,10 +1,12 @@
 # 当前项目交接
 
-更新时间：2026-08-07
+更新时间：2026-10-16
 
 ## Current State
 
 SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工程基线、远端、回滚点和 P1.02 工具链检测入口。Phase 0 完成；Phase 1 部分完成：当前主机未发现 CubeMX、FW_H7、MDK 或 Arm Compiler，最小可复现工程尚未重新生成或编译。当前 `main` 中的参考固件可供取证，但其编译、烧录和硬件状态不能视为已验证事实。
+
+2026-10-16 已完成工作区参考材料整理与静态完整性检查：Word、HTML、配图、文档生成器统一在 `Files/`，工程目录和文件内容保持原样；详细路径见 `Files/README.md`。本轮未重新探测工具安装状态，以上环境缺失结论来自 2026-08-07；固件构建仍未建立。
 
 ## Completed
 
@@ -44,9 +46,17 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 - 文件级提交事实源：`docs/construction/GIT_CONSTRUCTION_TREE.md`
 - 旧工程详细参考：`docs/handover/PROJECT_HANDOVER.md`
 
+## Workspace Layout
+
+- STM32：根 `.ioc`、`.mxproject`、`Core/`、`Drivers/`、`Middlewares/`、`MDK-ARM/` 原路径原内容。
+- 参考材料：`Files/`；施工文档：`docs/`；工具链入口：`tools/check_toolchain.sh`。
+- 本地未跟踪研究笔记已从 `docs/research/` 移至 `Files/research/`；内容原样保留，未纳入本次提交。
+- 整理前远端备份：`backup/workspace-before-files-20261016` → `4f5af0a6059f3061b00c421e75340eca4bf92257`，已核对。
+
 ## Test Baseline
 
-- 文档检查：Passed（36 个 Markdown 相对链接；施工树 11 个阶段、66 个微提交节点；当前模型漂移扫描 0 命中）。
+- 本轮整理检查：1669 个受保护文件哈希不变；49 个 Keil 文件引用、17 个包含目录条目、5 个生成脚本语法/路径、43 个 Markdown 本地链接和 2 个 HTML 本地引用检查通过。未编译或验证硬件。
+- 文档检查（2026-08-07）：Passed（36 个 Markdown 相对链接；施工树 11 个阶段、66 个微提交节点；当前模型漂移扫描 0 命中）。
 - P1.02 工具检测：脚本语法 Passed；当前主机按设计返回 1 / `INCOMPLETE`，四项必需组件 Not found；路径脱敏 Passed。
 - 固件构建：Not established。
 - 主机测试：Not established。

@@ -10,10 +10,11 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
 
 
-ROOT = Path(__file__).resolve().parents[1]
+FILES_ROOT = Path(__file__).resolve().parents[1]
+ROOT = FILES_ROOT.parent
 HANDOVER = ROOT / "docs" / "handover" / "PROJECT_HANDOVER.md"
 PROMPT = ROOT / "docs" / "handover" / "NEXT_AI_AGENT_PROMPT.md"
-OUTPUT = ROOT / "docs" / "handover" / "SmartRollator项目交接与Git重建指南.docx"
+OUTPUT = FILES_ROOT / "handover" / "SmartRollator项目交接与Git重建指南.docx"
 
 PAGE_W = 12240
 PAGE_H = 15840

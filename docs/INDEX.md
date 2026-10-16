@@ -34,6 +34,8 @@
 
 ## 历史与参考材料
 
+- [Files 参考材料目录](../Files/README.md)：Word、HTML、配图和生成脚本；与 STM32 工程分开存放。
+
 - [既有项目交接](handover/PROJECT_HANDOVER.md)：用于理解现有参考固件；其中独立目录方案已被 ADR-007 取代，不代表当前验证状态。
 - [下一位 AI Agent 提示词](handover/NEXT_AI_AGENT_PROMPT.md)：旧版交接提示；新施工以本索引和 `AGENTS.md` 为准。
 

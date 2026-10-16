@@ -118,3 +118,20 @@
 - P1.03 Gate：Blocked by environment；在可确认版本的 CubeMX 与匹配 FW_H7 包可用前，不替换 `.ioc`、`Core/`、`Drivers/`、`Middlewares/` 或 `MDK-ARM/`。
 - P1.05 Gate：Blocked by environment；需要可用且版本已确认的 MDK/Arm Compiler 构建环境。
 - Next：由产品负责人提供现有工具位置/Windows 构建环境，或明确授权安装所需工具；随后重新运行检测，只有状态 Complete 才进入 P1.03。
+
+## 2026-10-16 — 工作区参考材料整理开工
+
+- Objective：保持 STM32 工程完整，把对话生成的 DOCX、HTML、生成脚本、配图和研究笔记集中到 `Files/`。
+- Scope：只移动参考资产并修正生成脚本路径；`docs/` 保留施工事实源，`tools/check_toolchain.sh` 保留原入口。
+- Repository State：`build/phase-1-bootstrap`，起点 `4f5af0a6059f3061b00c421e75340eca4bf92257`；远端分支同哈希；开工前仅 `docs/research/` 未跟踪。
+- Tests：工程全文件 SHA-256 前后比对；Keil 源文件/包含目录引用检查；移动资产哈希核对；生成脚本语法和路径检查；Markdown/HTML 本地链接；Git 差异及远端哈希。
+- Rollback Point：`4f5af0a`；移动前推送 `backup/workspace-before-files-20261016`；本次整理提交可单独 revert。未跟踪研究笔记仅移动并保留未跟踪状态。
+- Exclusions：不改动 `.ioc`、`.mxproject`、`Core/`、`Drivers/`、`Middlewares/`、`MDK-ARM/`；不再生成报告，不安装工具，不推进 P1.03，不编译/烧录或实机测试；历史归档清单保持原始路径和内容。
+
+## 2026-10-16 — 工作区参考材料整理验证结论
+
+- Delivered：26 个本地文件迁入 `Files/`，其中 22 个原有 Git 跟踪资产；保留预览缓存与未跟踪研究笔记，原始报告不重生成。3 个脚本仅修正输入/输出路径，其余 23 个迁移文件字节一致。
+- Validation：1669 个受保护文件 SHA-256 与开工快照完全一致（含完整工程、原有本地输出、工具链脚本及历史清单）；Keil 49 个文件引用与 17 个包含目录条目均存在；5 个生成脚本语法和路径检查通过；43 个 Markdown 相对链接与 2 个 HTML 的本地引用检查通过；`sh -n tools/check_toolchain.sh`、`git diff --check` 通过。
+- Failures：本轮验证首次执行全部通过，无修复重测项。
+- Firmware Validation：Not run；只验证工程文件与路径完整性，不代表编译、烧录或实机通过；不推进 P1.03。
+- Backup：远端 `backup/workspace-before-files-20261016` 已核对为 `4f5af0a6059f3061b00c421e75340eca4bf92257`。本轮整理在 `build/phase-1-bootstrap` 形成独立可回滚提交。
