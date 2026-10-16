@@ -44,7 +44,7 @@ git log --oneline --decorate -8
 
 ## 当前起点
 
-- 当前目录是正式本地 Git 仓库；实际施工在 `build/phase-1-bootstrap`。`main` 保存早期完整基线，尚未合入本阶段工具链与 Files 整理；不要为了接手而自动切回 main。
+- 当前目录是正式本地 Git 仓库；按用户 2026-10-16 指令，当前完整状态已作为 main 开发基线。接手以 main 为入口，原 build/phase-1-bootstrap 保留，不自动回到旧阶段分支。
 - `reference/archive-20260807` 保存纳入 Git 前的只读参考快照；不能作为当前构建通过证据。
 - Git/远端/回滚基线已建立；最小可复现 CubeMX/Keil 构建仍未建立。
 - 下一步是完成 Phase 1 的工具链冻结、最小安全失能工程和真实全量编译。

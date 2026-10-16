@@ -4,7 +4,7 @@
 
 - 正式本地仓库：当前 Git 工作树的仓库根目录，也是当前工程工作目录。
 - GitHub 远端：`git@github.com:NeilBaumanMax/SmartRollator.git`。
-- `main` 保存治理文档和完整工程基线，阶段工作在独立分支推进；当前已有 build/phase-1-bootstrap，不自动切回 main 或重建同名分支，先核对 HANDOFF 和实时 Git 状态。
+- 按用户 2026-10-16 指令，`main` 保存当前完整状态并作为继续开发入口；原 build/phase-1-bootstrap 保留。先核对 HANDOFF 和实时 Git 状态，不默认重建旧阶段分支。
 - 早期按旧交接方案建立的旁路辅助克隆不再作为正式施工入口或事实源。
 - 旧工程首次纳入 Git 前的证据仍由 `reference/archive-20260807` 和 `reference_manifest.sha256` 保留。
 
@@ -64,7 +64,7 @@ build/phase-N-short-name    D--E...   后续阶段施工
 
 完整的文件级提交序列见 [Git 文件级施工树](GIT_CONSTRUCTION_TREE.md)。该文件是“下一批文件为何创建、同一提交包含哪些文件、运行什么测试”的权威入口；本文件只定义 Git 安全规则。
 
-- 施工分支：`build/phase-N-short-name`；纯文档治理可使用 `docs/short-name`。
+- 当前继续开发入口为 `main`（用户明确指定）；需要独立隔离阶段时可使用 `build/phase-N-short-name`，纯文档治理可使用 `docs/short-name`。无论分支如何选择，均保留备份、精确提交和测试规则。
 - 阶段备份建议：`backup/phase-N-YYYYMMDD`。
 - 提交信息建议：`docs: establish construction baseline`、`feat(force): parse validated sensor frames`。
 - 一个提交对应一个可解释、可测试、可回滚的增量。

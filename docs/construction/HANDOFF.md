@@ -4,7 +4,7 @@
 
 ## Current State
 
-正式入口为当前 Git 工作树根目录，施工分支 `build/phase-1-bootstrap`。Phase 0 完成；Phase 1 部分完成：P1.01 文档基线与 P1.02 工具链检测入口已建立，P1.03 最小工程生成、P1.05 编译尚未完成。现有完整 STM32 工程仍为参考基线，不是已验证发布版。
+正式入口为当前 Git 工作树根目录，施工分支 `main`。Phase 0 完成；Phase 1 部分完成：P1.01 文档基线与 P1.02 工具链检测入口已建立，P1.03 最小工程生成、P1.05 编译尚未完成。现有完整 STM32 工程仍为参考基线，不是已验证发布版。
 
 2026-10-16 已整理 Files、补入另一工作区的 23 份独有资料。本轮统一 Agent 导航与真实目录，DOCX 从 9 份收敛为 6 份，保留各同主题组较新版本；工程代码不变。
 
@@ -27,16 +27,18 @@
 ## Git State
 
 - Remote：`git@github.com:NeilBaumanMax/SmartRollator.git`。
-- `main`：本轮核对远端为 `5403028d255ac16d2e137454fc40513e75eb01f2`，不是当前施工分支。
-- 当前施工分支：`build/phase-1-bootstrap`；本轮开工基线 `1a9f299e6498579e5dbb4e9f03972e1ace270814`，此前已推送。
-- 近期交付：`4f5af0a` 工具链入口；`1d79da5` Files 整理；`1a9f299` 独有参考资产补入。
+- 当前施工分支：`main`，按用户明确指令承接当前完整状态并继续开发；原 `build/phase-1-bootstrap` 保留。
+- 本次提升的已交付基线：`ac0c0d30abd368e4124d01d10e91176c724dd8d6`（原阶段分支）；另附本轮主分支状态文档提交。
+- 提升前 main：`5403028d255ac16d2e137454fc40513e75eb01f2`，已保存到远端 `backup/main-before-promotion-20261016`。
+- 提升方式：快进合并，无强制推送、不删除历史。最新主分支哈希通过 `git log -1` 和 `git ls-remote origin refs/heads/main` 实时核对。
+- 近期交付：`4f5af0a` 工具链入口；`1d79da5` Files 整理；`1a9f299` 独有参考资产补入；`ac0c0d3` 文档漂移修正与 DOCX 版本收敛。
 - 本轮前备份：`backup/before-docs-dedup-20261016` → `1a9f299e6498579e5dbb4e9f03972e1ace270814`，远端已核对；包含删除前 9 份 DOCX。
 - 历史 bootstrap/reference 分支继续保留；根 reference_manifest.sha256 对应早期归档，legacy-workspace/IMPORT_MANIFEST.tsv 对应导入时点，均不作为当前全目录清单。
 - 本页随当前整理提交更新；最新提交用 `git log -1` 核对，不能将本页开工基线当成最新 HEAD。
 
 ## Next Tasks
 
-1. 按 docs/INDEX.md 的唯一顺序读取；盘点 tracked、untracked，必要时分类 ignored 文件。
+1. 确认当前为 main 并与 origin/main 同步；按 docs/INDEX.md 的唯一顺序读取，盘点 tracked、untracked，必要时分类 ignored 文件。
 2. 提供或确认 CubeMX 与匹配 FW_H7、MDK 与 Arm Compiler 的位置和版本；需要安装时按用户授权处理。
 3. 重跑工具链探测并保存结果；P1.03 的前置条件为 CubeMX/FW_H7 版本确认，P1.05 另需 MDK/编译器。完整探测 COMPLETE 表示四项均确认，不改变分阶段门槛。
 4. 按施工树生成最小安全失能工程与清单，之后实际全量编译；不要先推进控制算法或电机阶段。

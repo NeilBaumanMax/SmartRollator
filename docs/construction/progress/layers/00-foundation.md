@@ -1,6 +1,6 @@
 # 00 — 仓库与工程基础
 
-- Current Baseline：施工文档、GitHub 远端、完整 `main` 基线与当前 `build/phase-1-bootstrap`、bootstrap 备份、旧参考归档和 P1.02 检测入口已建立；当前主机工具链不完整，CubeMX/Keil 最小工程基线未建立。
+- Current Baseline：施工文档、GitHub 远端、当前完整 `main` 开发基线与保留的 `build/phase-1-bootstrap`、bootstrap 备份、旧参考归档和 P1.02 检测入口已建立；当前主机工具链不完整，CubeMX/Keil 最小工程基线未建立。
 - Scope：Phase 1 与 Phase 3 的仓库骨架、可复现构建、公共类型和主机测试入口。
 - Key Deliverables：`.gitignore`、README/docs、`.ioc`、Keil 工程、工具版本、构建命令、测试入口、远端备份。
 - Acceptance：干净检出可构建；目标板上电保持电机失能；远端回滚分支可访问。

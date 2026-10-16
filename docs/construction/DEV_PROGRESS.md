@@ -172,3 +172,21 @@
 - Toolchain：2026-10-16 运行 `sh tools/check_toolchain.sh`，退出 1，四项 NOT_FOUND / INCOMPLETE，符合检测契约；不代表系统全部位置均无安装。
 - Firmware：Not run；未重生成、编译、烧录或实机验证，不改变 Phase 1 整体验收状态。
 - Rollback：远端 backup/before-docs-dedup-20261016 已核对为 1a9f299e6498579e5dbb4e9f03972e1ace270814；本轮独立提交可回滚，研究笔记仍为本地未跟踪。
+
+## 2026-10-16 — 当前状态提升到 main 开工
+
+- Objective：按用户明确指令，将当前已提交状态作为 main 主分支继续开发，并推送远端。
+- Baseline：当前 build/phase-1-bootstrap 为 ac0c0d30abd368e4124d01d10e91176c724dd8d6；fetch 后 origin/main 和本地 main 均为 5403028d255ac16d2e137454fc40513e75eb01f2，落后 4 个提交，无分叉。
+- Scope：统一当前分支文档、快进 main、推送与核对；保留阶段分支及所有备份。
+- Backup：main 提升前保存远端 backup/main-before-promotion-20261016；原阶段提交已在远端保存。
+- Tests：祖先关系、非文档资产哈希、文档链接与状态漂移、精确暂存、main 和 origin/main/远端 HEAD 一致。
+- Exclusions：不强推，不改工程，不宣称 Phase 1 构建完成；不提交已有 Files/research 未跟踪笔记。
+- Rollback：从旧 main 备份创建恢复分支，或按提交 revert；不改写 main 历史。
+
+## 2026-10-16 — 主分支提升交付范围
+
+- 当前完整阶段状态从 ac0c0d3 承接到 main，另提交本轮分支状态文档；旧阶段分支和全部备份保留。
+- AGENTS、README、开工入口、目录地图、HANDOFF、Git 规则、施工树和 L0 状态统一指向 main；后续按用户指令在 main 继续开发。
+- 原 main 备份：backup/main-before-promotion-20261016 → 5403028d255ac16d2e137454fc40513e75eb01f2。
+- 验收：仅文档修改；工程及参考文件保持原样；main 快进、推送及本地/远端哈希核对作为交付检查。
+- Files/research 继续未跟踪，未纳入推送；Phase 1 整体仍为 Partially complete。
