@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 520">
+<defs>
+<style>@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+text{font-family:'JetBrains Mono','Noto Sans SC','PingFang SC',sans-serif;}</style>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0L0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern>
+<marker id="ac" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#22d3ee"/></marker>
+<marker id="ag" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#34d399"/></marker>
+<marker id="ao" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#fb923c"/></marker>
+<marker id="av" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#a78bfa"/></marker>
+<marker id="ay" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#fbbf24"/></marker>
+<marker id="ar" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#fb7185"/></marker>
+<marker id="as" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#0f172a"/>
+<rect width="100%" height="100%" fill="url(#grid)"/>
+<text x="20" y="28" fill="white" font-size="15" font-weight="700">图3: 辅助数据流</text>
+<rect x="10" y="40" width="1000" height="140" rx="10" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/><text x="22" y="56" fill="#fbbf24" font-size="9" font-weight="600">ArUco 视觉定位 (USART1 RX 中断 + MonitorMutex)</text><rect x="20" y="75" width="120" height="55" rx="6" fill="#0f172a"/>
+<rect x="20" y="75" width="120" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="80.0" y="106" fill="white" font-size="11" font-weight="600" text-anchor="middle">外部相机</text>
+<text x="80.0" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">ArUco 检测</text><line x1="140" y1="102" x2="200" y2="102" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="170.0" y="96.0" fill="#fbbf24" font-size="7" text-anchor="middle">串行TX</text><rect x="205" y="75" width="135" height="55" rx="6" fill="#0f172a"/>
+<rect x="205" y="75" width="135" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="272.5" y="106" fill="white" font-size="11" font-weight="600" text-anchor="middle">USART1 RX 中断</text>
+<text x="272.5" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">1字节 IT 优先级6</text><line x1="340" y1="102" x2="395" y2="102" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="367.5" y="96.0" fill="#fbbf24" font-size="7" text-anchor="middle">line_buf</text><rect x="400" y="75" width="155" height="55" rx="6" fill="#0f172a"/>
+<rect x="400" y="75" width="155" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="477.5" y="106" fill="white" font-size="11" font-weight="600" text-anchor="middle">$ARUCO 帧解析</text>
+<text x="477.5" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">$ARUCO,seq,id,x,y,...</text>
+<text x="477.5" y="136" fill="#64748b" font-size="7" text-anchor="middle">XOR 校验 10字段</text><line x1="555" y1="102" x2="610" y2="102" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="582.5" y="96.0" fill="#fbbf24" font-size="7" text-anchor="middle">strtol</text><rect x="615" y="75" width="145" height="55" rx="6" fill="#0f172a"/>
+<rect x="615" y="75" width="145" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="687.5" y="106" fill="white" font-size="11" font-weight="600" text-anchor="middle">VisionPose_t</text>
+<text x="687.5" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">x/y/z/roll/pitch/yaw</text>
+<text x="687.5" y="136" fill="#64748b" font-size="7" text-anchor="middle">marker_id, dist, seq</text><line x1="760" y1="102" x2="820" y2="102" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="790.0" y="96.0" fill="#fbbf24" font-size="7" text-anchor="middle">Monitor_Update</text><rect x="825" y="75" width="130" height="55" rx="6" fill="#0f172a"/>
+<rect x="825" y="75" width="130" height="55" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="890.0" y="106" fill="white" font-size="11" font-weight="600" text-anchor="middle">MonitorMutex</text>
+<text x="890.0" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">互斥量保护</text>
+<text x="890.0" y="136" fill="#64748b" font-size="7" text-anchor="middle">写入 g_mon</text><rect x="10" y="195" width="1000" height="140" rx="10" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/><text x="22" y="211" fill="#a78bfa" font-size="9" font-weight="600">监控与调试 (Log_task 100ms + USART1 TX)</text><rect x="20" y="230" width="145" height="55" rx="6" fill="#0f172a"/>
+<rect x="20" y="230" width="145" height="55" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="92.5" y="261" fill="white" font-size="11" font-weight="600" text-anchor="middle">Log_task 100ms</text>
+<text x="92.5" y="277" fill="#94a3b8" font-size="8" text-anchor="middle">BelowNormal7 4096B</text>
+<text x="92.5" y="291" fill="#64748b" font-size="7" text-anchor="middle">周期唤醒读快照</text><line x1="165" y1="257" x2="225" y2="257" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="195.0" y="251.0" fill="#a78bfa" font-size="7" text-anchor="middle">osMutexAcquire</text><rect x="230" y="230" width="140" height="55" rx="6" fill="#0f172a"/>
+<rect x="230" y="230" width="140" height="55" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="300.0" y="261" fill="white" font-size="11" font-weight="600" text-anchor="middle">MonitorMutex</text>
+<text x="300.0" y="277" fill="#94a3b8" font-size="8" text-anchor="middle">互斥量</text>
+<text x="300.0" y="291" fill="#64748b" font-size="7" text-anchor="middle">保护 g_mon 读</text><line x1="370" y1="257" x2="430" y2="257" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-#)"/><rect x="435" y="225" width="210" height="65" rx="6" fill="#0f172a"/>
+<rect x="435" y="225" width="210" height="65" rx="6" fill="rgba(76,29,149,0.45)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="540.0" y="261" fill="white" font-size="11" font-weight="600" text-anchor="middle">g_mon 监控快照</text>
+<text x="540.0" y="277" fill="#94a3b8" font-size="8" text-anchor="middle">monitor_snapshot_t</text>
+<text x="540.0" y="291" fill="#64748b" font-size="7" text-anchor="middle">force/cmd/vision + 时间戳</text><line x1="645" y1="257" x2="705" y2="257" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-#)"/><rect x="710" y="230" width="145" height="55" rx="6" fill="#0f172a"/>
+<rect x="710" y="230" width="145" height="55" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="782.5" y="261" fill="white" font-size="11" font-weight="600" text-anchor="middle">USART1 TX</text>
+<text x="782.5" y="277" fill="#94a3b8" font-size="8" text-anchor="middle">PA9 115200-8-N-1</text>
+<text x="782.5" y="291" fill="#64748b" font-size="7" text-anchor="middle">LOG_PRINT</text><line x1="855" y1="257" x2="915" y2="257" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-#)"/><rect x="920" y="230" width="100" height="55" rx="6" fill="#0f172a"/>
+<rect x="920" y="230" width="100" height="55" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="970.0" y="261" fill="white" font-size="11" font-weight="600" text-anchor="middle">串口终端</text>
+<text x="970.0" y="277" fill="#94a3b8" font-size="8" text-anchor="middle">h/p/t 命令</text>
+<text x="970.0" y="291" fill="#64748b" font-size="7" text-anchor="middle">PC 上位机</text><rect x="10" y="350" width="1000" height="140" rx="10" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/><text x="22" y="366" fill="#fb923c" font-size="9" font-weight="600">CAN 反馈流 (FDCAN1 RX 中断 → HeartbeatFlags)</text><rect x="20" y="380" width="205" height="55" rx="6" fill="#0f172a"/>
+<rect x="20" y="380" width="205" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fb923c" stroke-width="1.5"/>
+<text x="122.5" y="411" fill="white" font-size="11" font-weight="600" text-anchor="middle">电机 TPDO 反馈</text>
+<text x="122.5" y="427" fill="#94a3b8" font-size="8" text-anchor="middle">0x181 速度 · 0x281 电流</text>
+<text x="122.5" y="441" fill="#64748b" font-size="7" text-anchor="middle">0x381 位置 · 0x481 故障</text><line x1="225" y1="407" x2="285" y2="407" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-#)"/><rect x="290" y="380" width="165" height="55" rx="6" fill="#0f172a"/>
+<rect x="290" y="380" width="165" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fb923c" stroke-width="1.5"/>
+<text x="372.5" y="411" fill="white" font-size="11" font-weight="600" text-anchor="middle">FDCAN1 RX 中断</text>
+<text x="372.5" y="427" fill="#94a3b8" font-size="8" text-anchor="middle">FIFO0 IT 优先级5</text>
+<text x="372.5" y="441" fill="#64748b" font-size="7" text-anchor="middle">HAL_FDCAN_RxFifo0Cb</text><line x1="455" y1="407" x2="515" y2="407" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-#)"/>
+<text x="485.0" y="401.0" fill="#fb923c" font-size="7" text-anchor="middle">CAN帧解析</text><rect x="520" y="380" width="155" height="55" rx="6" fill="#0f172a"/>
+<rect x="520" y="380" width="155" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fb923c" stroke-width="1.5"/>
+<text x="597.5" y="411" fill="white" font-size="11" font-weight="600" text-anchor="middle">MotorFb_t</text>
+<text x="597.5" y="427" fill="#94a3b8" font-size="8" text-anchor="middle">pos/vel/torque</text>
+<text x="597.5" y="441" fill="#64748b" font-size="7" text-anchor="middle">status/fault</text><line x1="675" y1="407" x2="735" y2="407" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-#)"/><rect x="740" y="380" width="185" height="55" rx="6" fill="#0f172a"/>
+<rect x="740" y="380" width="185" height="55" rx="6" fill="rgba(120,53,15,0.35)" stroke="#fb923c" stroke-width="1.5"/>
+<text x="832.5" y="411" fill="white" font-size="11" font-weight="600" text-anchor="middle">HeartbeatFlags</text>
+<text x="832.5" y="427" fill="#94a3b8" font-size="8" text-anchor="middle">osEventFlagsSet(HB_CAN)</text>
+<text x="832.5" y="441" fill="#64748b" font-size="7" text-anchor="middle">心跳位标记 CAN 在线</text><path d="M 832 435 L 832 465 L 390 465 L 390 450" stroke="#fb923c" stroke-width="1" fill="none" stroke-dasharray="5,3" marker-end="url(#ao)"/><text x="610" y="460" fill="#64748b" font-size="7" text-anchor="middle">返回控制环: 根据反馈判断 CAN 是否超时 (>100ms)</text></svg>

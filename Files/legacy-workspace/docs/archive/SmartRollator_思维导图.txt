@@ -1,0 +1,521 @@
+SmartRollator 智能助行车 —— 嵌入式工程完整思维导图
+MCU: STM32H723VGTx (Cortex-M7, 550MHz)   RTOS: FreeRTOS V10.3.1 + CMSIS-RTOS v2   编译: Keil MDK-ARM
+====================================================================================================
+
+
+一、项目目录结构
+================
+
+SmartRollator/
+│
+├─ Core/ ────────────────────────────────────────────── STM32CubeMX 生成核心代码
+│   ├─ Inc/  ...................................... 头文件
+│   │   ├─ main.h  ............................... 引入 data_structs.h, user_can.h
+│   │   ├─ fdcan.h  .............................. FDCAN1/2 句柄声明
+│   │   ├─ gpio.h  ............................... GPIO 初始化声明
+│   │   ├─ usart.h  .............................. USART1/2 句柄声明
+│   │   ├─ FreeRTOSConfig.h  ..................... FreeRTOS 内核配置 (56优先级, 1kHz tick, Heap_4, 15KB堆)
+│   │   └─ stm32h7xx_it.h  ....................... 中断服务函数声明
+│   │
+│   └─ Src/  ...................................... 源文件
+│       ├─ main.c  ............................... 入口: HAL_Init → 时钟配置 → 外设初始化 → FreeRTOS 启动
+│       ├─ freertos.c  ........................... 任务/队列/信号量/定时器/互斥量创建 + 全部任务主体
+│       ├─ fdcan.c  .............................. FDCAN1/2 初始化 + MSP
+│       ├─ gpio.c  ............................... GPIO 端口时钟使能
+│       ├─ usart.c  .............................. USART1/2 初始化 + MSP
+│       ├─ stm32h7xx_it.c  ....................... 中断服务例程 (SysTick/USART1/FDCAN1)
+│       ├─ stm32h7xx_hal_msp.c  .................. 全局 MSP 初始化 (PendSV=15)
+│       └─ system_stm32h7xx.c  ................... 系统时钟初始化
+│
+├─ Drivers/ ─────────────────────────────────────────── STM32H7 HAL 库 + CMSIS
+│   ├─ STM32H7xx_HAL_Driver/
+│   └─ CMSIS/
+│
+├─ Middlewares/ ─────────────────────────────────────── FreeRTOS 源码
+│   └─ Third_Party/FreeRTOS/
+│
+├─ MDK-ARM/ ─────────────────────────────────────────── ★ 用户核心业务代码
+│   ├─ Controller.h / Controller.c  ............... 顶层控制器 (CPG输出 → 电机转速转换)
+│   │   └─ 换算: rpm = v_mps × 60 / (2π × 0.075), 限幅 ±400 rpm, 左轮 +rpm / 右轮 -rpm
+│   ├─ cpg_control.h / cpg_control.c  ............. Hopf CPG + 变导纳控制算法 (详见第十一章)
+│   ├─ data_structs.h  ............................ 全局数据结构定义 (7个结构体, 详见第十章)
+│   ├─ torque_sensor.h / torque_sensor.c  ......... 六维力传感器 MODBUS RTU 解析 + RS485 方向控制
+│   ├─ user_can.h / user_can.c  ................... CANopen 通信封装 (ZLAC8015D 驱动器 PDO/NMT/SDO)
+│   └─ RTE/_SmartRollator/RTE_Components.h  ....... Keil RTE 组件配置
+│
+├─ SmartRollator.ioc ────────────────────────────────── STM32CubeMX 工程配置
+├─ diagrams/ ........................................ 架构图/参数图
+├─ tools/ ........................................... Python 文档生成脚本
+└─ *.docx / *.html .................................. 项目理论文档
+
+
+二、时钟树配置
+=============
+
+  HSE 25MHz ──→ PLL(M=2,N=20) ──→ VCO=250MHz ──┬── PLLP=1 ──→ SYSCLK=250MHz ──→ HCLK=250MHz(DIV1)
+                                                 ├── PLLQ=4 ──→ 62.5MHz (FDCAN 时钟源)
+                                                 └── PLLR=2 ──→ 125MHz
+
+  总线分频:  APB1/2/3/4 = D1PCLK1 = D3PCLK1 = 125MHz (HCLK/2)
+  FLASH:     LATENCY=3, 内核电压 SCALE0
+  USART1:    时钟源 D2PCLK2 (APB2 = 125MHz)
+  USART2:    时钟源 D2PCLK1 (APB1 = 125MHz)
+
+  FDCAN 波特率:
+    FDCAN1: CANCLK=62.5MHz, Prescaler=10, TSeg1=9, TSeg2=2, SJW=2 → 约 500kbps
+    FDCAN2: CANCLK=62.5MHz, Prescaler=16, TSeg1=1, TSeg2=1, SJW=1 → 约 1.3Mbps
+
+
+三、FreeRTOS 内核配置
+====================
+
+  CPU时钟: SystemCoreClock (250MHz)         调度: 抢占式 (configUSE_PREEMPTION=1)
+  系统滴答: 1kHz (1ms/tick)                 最大优先级: 56 (0~55)
+  最小任务栈: 128 words                     总堆大小: 15360 bytes (Heap_4)
+  任务名最大: 16 字符                       中断安全调用最高优先级: 5
+  互斥量: 启用 + 递归                       最低中断优先级: 15
+  信号量: 启用计数信号量                     NVIC 优先级位: 4
+  软件定时器: 启用 (守护任务 prio=2, 栈=256 words, 命令队列=10)
+  CMSIS-RTOS v2: 全部开启                    FPU/MPU: 未启用
+
+
+四、FreeRTOS 任务总览 (7 个任务，抢占式调度)
+============================================
+
+  ┌──────────────────────┬──────────────────────┬──────────────────────┬─────────┬──────┐
+  │      任务名           │      入口函数         │      优先级           │  栈大小  │ 状态  │
+  ├──────────────────────┼──────────────────────┼──────────────────────┼─────────┼──────┤
+  │ ForceSensorTask      │ StartForceSensorTask │ osPriorityAboveNormal│ 2048 B   │ ✅   │
+  │ ControlTask          │ StartControlTask     │ osPriorityRealtime   │ 4096 B   │ ✅   │
+  │ MotorTxTask          │ StartMotorTxTask     │ osPriorityRealtime1  │ 2048 B   │ ✅   │
+  │ Log_task             │ StartLog_task        │ osPriorityBelowNormal7│ 4096 B  │ ✅   │
+  │ CAN_Worker_Task      │ StartCAN_Worker_Task │ osPriorityHigh       │ 2048 B   │ ⚠️占位│
+  │ IMUtask              │ StartIMUtask         │ osPriorityAboveNormal│ 2048 B   │ ⚠️占位│
+  │ WatchdogTask         │ StartWatchdogTask    │ osPriorityHigh7      │ 1024 B   │ ⚠️占位│
+  └──────────────────────┴──────────────────────┴──────────────────────┴─────────┴──────┘
+
+  任务数据流:
+
+    ForceSensorTask (100Hz) ──ForceQueue(8×24B)──→ ControlTask (1kHz,★核心)
+                                                       │
+                                                MotorCmdQueue(8×24B)
+                                                       ↓
+                                                  MotorTxTask ──→ FDCAN1 ──→ 电机
+                                                       │
+                                                MonitorMutex (保护全局快照)
+                                                       ↓
+                                                   Log_task ──→ USART1 串口输出
+
+
+五、FreeRTOS 内核对象
+=====================
+
+  5.1 消息队列 (7 个)
+  ┌────────────────────────┬──────┬──────────────────────┬─────────────┐
+  │        队列名           │ 容量  │      元素类型         │    用途      │
+  ├────────────────────────┼──────┼──────────────────────┼─────────────┤
+  │ ForceQueueHandle       │  8   │ ForceData_t (24B)    │ 力数据传递   │
+  │ IMUQueueHandle         │  8   │ IMUData_t (48B)      │ IMU数据(预留)│
+  │ IMUProcessedQueueHandle│  8   │ IMUData_t (48B)      │ IMU处理后(预留)│
+  │ MotorFbQueueHandle     │  8   │ MotorFb_t (16B)      │ 电机反馈(预留)│
+  │ MotorCmdQueueHandle    │  8   │ MotorCmd_t (24B)     │ 电机指令传递 │
+  │ LogQueueHandle         │  8   │ LogMsg_t (136B)      │ 日志(预留)   │
+  │ CtrlLoopTimer队列       │  10  │ (内部)               │ 定时器命令   │
+  └────────────────────────┴──────┴──────────────────────┴─────────────┘
+
+  5.2 信号量 (2 个)
+    ForceRxSemHandle  ── 计数信号量, max=1 → 力传感器接收同步 (预留)
+    CANRxSemHandle    ── 计数信号量, max=1 → CAN 接收同步 (预留)
+
+  5.3 互斥量 (1 个)
+    MonitorMutex ── 保护全局监控快照 g_mon (monitor_snapshot_t)
+
+  5.4 事件标志组 (2 个)
+    HeartbeatFlagsHandle    ── 任务心跳: HB_FORCE/ HB_CAN/ HB_IMU/ HB_CTRL/ HB_LOG
+    SystemStatusFlagsHandle ── 系统状态标志 (预留, 未使用)
+
+  5.5 软件定时器 (2 个, 均为周期定时器)
+    CtrlLoopTimerHandle ── 回调: CtrlLoopTimerCallback (空, 未启动)
+    LogFlushTimerHandle ── 回调: LogFlushTimerCallback (空, 未启动)
+
+
+六、外设引脚分配
+================
+
+  6.1 USART
+  ┌──────────┬────────┬───────────┬──────┬──────────────────────┐
+  │  外设     │ 功能    │  GPIO 引脚 │  AF  │       参数            │
+  ├──────────┼────────┼───────────┼──────┼──────────────────────┤
+  │ USART1   │ TX     │ PA9       │ AF7  │ 115200-8-N-1, 中断接收 │
+  │ USART1   │ RX     │ PA10      │ AF7  │                      │
+  │ USART2   │ DE     │ PD4       │ AF7  │ RS485 方向 (高=发送)   │
+  │ USART2   │ TX     │ PD5       │ AF7  │ 115200-8-N-1, 阻塞收发 │
+  │ USART2   │ RX     │ PD6       │ AF7  │                      │
+  └──────────┴────────┴───────────┴──────┴──────────────────────┘
+
+  6.2 FDCAN
+  ┌──────────┬────────┬───────────┬──────┐
+  │  外设     │ 功能    │  GPIO 引脚 │  AF  │
+  ├──────────┼────────┼───────────┼──────┤
+  │ FDCAN1   │ RX     │ PD0       │ AF9  │
+  │ FDCAN1   │ TX     │ PD1       │ AF9  │
+  │ FDCAN2   │ RX     │ PB12      │ AF9  │
+  │ FDCAN2   │ TX     │ PB13      │ AF9  │
+  └──────────┴────────┴───────────┴──────┘
+
+  6.3 GPIO 端口时钟使能
+    GPIOA (USART1)  /  GPIOB (FDCAN2)  /  GPIOD (FDCAN1, USART2)  /  GPIOH (HSE)
+
+
+七、中断优先级配置
+==================
+
+  ┌────────────────────┬───────────┬──────────┬──────────────────────────────┐
+  │       中断          │ 抢占优先级 │ 亚优先级  │            说明               │
+  ├────────────────────┼───────────┼──────────┼──────────────────────────────┤
+  │ SysTick            │    15     │    0     │ 系统滴答, 最低优先级           │
+  │ PendSV             │    15     │    0     │ 任务上下文切换 (HAL_MspInit)   │
+  │ USART1             │     6     │    0     │ 串口1中断接收(1字节) → 回调    │
+  │ FDCAN1_IT0         │     5     │    0     │ FDCAN1 中断线0 (RX FIFO0)     │
+  │ FDCAN1_IT1         │     5     │    0     │ FDCAN1 中断线1 (预留)          │
+  │ FDCAN2             │    未启用  │    -     │ 未配置中断                     │
+  │ USART2             │    未启用  │    -     │ 阻塞模式, 无需中断             │
+  └────────────────────┴───────────┴──────────┴──────────────────────────────┘
+
+  中断嵌套规则:
+    优先级数值 >= 5 → 可调用 FreeRTOS API (FromISR)
+    优先级数值 <  5 → 禁止调用 FreeRTOS API
+    FDCAN1 (5) 刚好可用; USART1 (6) 可用
+
+
+八、CAN 通信 (CANopen over FDCAN1, 驱动器 ID=0x01)
+===================================================
+
+  8.1 节点参数
+    FDCAN1: 经典CAN, 正常模式, 自动重传禁用
+    过滤器: 标准ID掩码模式, 仅接收 0x700~0x701, 路由到 RX FIFO0
+    RX FIFO0=2条, TXFIFO=3条, TXBuffer=1个
+    FDCAN2: 经典CAN, 正常模式 (未配置过滤器)
+
+  8.2 COB-ID 分配表 (CANopen DS301 兼容)
+  ┌──────────┬────────────────┬─────────┬──────┬──────────────────────┐
+  │  PDO     │     方向        │  COB-ID  │ 长度  │      映射对象          │
+  ├──────────┼────────────────┼─────────┼──────┼──────────────────────┤
+  │ RPDO0    │ 主机→驱动器     │ 0x201   │ 2B   │ 0x6040:00 控制字       │
+  │ RPDO1    │ 主机→驱动器     │ 0x301   │ 4B   │ 0x60FF:03 目标速度L+R  │
+  │ RPDO2    │ 主机→驱动器     │ 0x401   │ 4B   │ 0x607A:01 左电机位置   │
+  │ RPDO3    │ 主机→驱动器     │ 0x501   │ 4B   │ 0x607A:02 右电机位置   │
+  │ TPDO0    │ 驱动器→主机     │ 0x181   │ 4B   │ 0x606C:03 实际速度      │
+  │ TPDO1    │ 驱动器→主机     │ 0x281   │ 4B   │ 0x6077:03 实际电流      │
+  │ TPDO2    │ 驱动器→主机     │ 0x381   │ 8B   │ 0x6064:01/02 L+R位置   │
+  │ TPDO3    │ 驱动器→主机     │ 0x481   │ 2B   │ 0x603F:00 故障码       │
+  │ NMT      │ 主机→驱动器     │ 0x000   │ 2B   │ 网络管理命令            │
+  │ SDO(tx)  │ 主机→驱动器     │ 0x601   │ 8B   │ 对象字典访问            │
+  │ SDO(rx)  │ 驱动器→主机     │ 0x581   │ 8B   │ 对象字典应答            │
+  │ 心跳     │ 驱动器→主机     │ 0x701   │ 1B   │ NMT 状态               │
+  └──────────┴────────────────┴─────────┴──────┴──────────────────────┘
+
+  8.3 速度指令格式 (COB-ID 0x301, RPDO1)
+    Data[0..1] = left_rpm  (int16, 低字节在前, +rpm=向前)
+    Data[2..3] = right_rpm (int16, 低字节在前, -rpm=向前, 幅值与左轮一致)
+
+  8.4 驱动器初始化序列 (ControlTask 启动时执行一次)
+    (1) CAN_Init() → 启动 FDCAN1 + 激活 RX 通知
+    (2) RPDO1_Config(0x01) → 配置 RPDO1 映射 0x60FF:03
+    (3) Profile_Velocity_Init(0x01, 0x05) → 速度模式 + 加速度=5
+        SDO 写入: 0x6060:00=0x03(速度模式), 0x6083/0x6084 (加速/减速=L/R), 0x200F:00=0x01(同步使能)
+    (4) NMT_Control(0x01, 0x01) → NMT 启动节点
+    (5) Driver_Enable(0x01) → 控制字 0x06→0x07→0x0F (Shutdown→SwitchOn→Enable)
+    (6) CPG_Init(&my_cpg) → 初始化 CPG 参数
+
+
+九、MODBUS RTU 协议 (六维力传感器)
+==================================
+
+  9.1 物理层
+    接口: USART2 + RS485 (半双工)
+    波特率: 115200, 8-N-1
+    RS485 方向控制: PD4 (SET=发送, RESET=接收)
+    轮询频率: 100Hz (osDelay(10))
+
+  9.2 查询帧 (8字节)
+    0x01 | 0x03 | 0x04 | 0x00 | 0x00 | 0x0C | 0x44 | 0xFF
+    ──地址──  ─功能码──  ─起始寄存器──  ──数量12个──  ─CRC16──
+
+  9.3 响应帧 (29字节)
+    Byte[0..2]:   帧头 (3字节, 跳过)
+    Byte[3..6]:   把手1 Fx (Big-Endian IEEE754 float)
+    Byte[7..10]:  把手1 Fy
+    Byte[11..14]: 把手1 Fz
+    Byte[15..18]: 把手2 Fx
+    Byte[19..22]: 把手2 Fy
+    Byte[23..26]: 把手2 Fz
+    Byte[27..28]: CRC16 (代码中未校验)
+
+  9.4 解析函数
+    int processForceData(const uint8_t* hexData, size_t len, ForceData_t* f1, ForceData_t* f2)
+    返回: 0=成功, -1=失败, torque_x/y 在解析层设为 0.0f
+
+
+十、全局数据结构
+================
+
+  ForceData_t (24B)
+    ├─ fx, fy, fz (float)  ── 力分量 (N)
+    ├─ torque_x, torque_y (float) ── 力矩分量 (Nm, 未使用)
+    └─ timestamp (uint32_t) ── HAL_GetTick (ms)
+
+  IMUData_t (48B) ⚠️预留
+    ├─ accel[3], gyro[3] (float) ── 加速度/角速度
+    ├─ quat[4] (float) ── 四元数
+    ├─ roll, pitch, yaw (float) ── 欧拉角
+    └─ timestamp (uint32_t)
+
+  MotorFb_t (16B)
+    ├─ pos (int32_t)  ── 编码器位置
+    ├─ vel (int32_t)  ── 实际速度 (rpm)
+    ├─ torque (int16_t) ── 实际转矩
+    ├─ status (uint8_t) ── 状态字
+    └─ timestamp (uint32_t)
+
+  MotorCmd_t (24B)
+    ├─ target_pos (int32_t)  ── 目标位置
+    ├─ target_vel (int32_t)  ── 目标速度 (rpm)
+    ├─ target_acc (int32_t)  ── 目标加速度
+    ├─ target_torque (int16_t) ── 目标转矩
+    ├─ ctrl_mode (uint8_t)  ── 控制模式: 1=速度模式
+    └─ timestamp (uint32_t)
+
+  VisionPose_t (ArUco 视觉位姿)
+    ├─ seq, status, marker_id (uint16_t/uint8_t/uint16_t)
+    ├─ x_mm, y_mm, z_mm (int16_t) ── 位置 (mm)
+    ├─ roll_x10, pitch_x10, yaw_x10 (int16_t) ── 姿态角×10
+    ├─ dist_mm (int16_t) ── 距离 (mm)
+    └─ timestamp (uint32_t)
+
+  LogMsg_t (136B) ── text[128] + timestamp + level  (日志消息, 预留)
+
+  monitor_snapshot_t
+    ├─ force (ForceData_t), cmd (MotorCmd_t), vision (VisionPose_t)
+    └─ ts_force, ts_cmd, ts_vision (uint32_t) ── 各自时间戳
+
+  CPG_Handle_t (Hopf CPG 参数+状态)
+    ├─ alpha=10.0, mu=1.0, omega≈5.655, epsilon=0.01 ── Hopf 参数
+    ├─ x=0.1, y=0.0 ── Hopf 状态
+    ├─ M=15.0, D_base=40.0, lambda=20.0 ── 导纳参数
+    └─ v_c=0.0 ── 导纳输出速度 (m/s)
+
+
+十一、控制算法详解 (cpg_control.c)
+===================================
+
+  算法链路:
+    外力 F_ext(N) ──→ Hopf CPG ──→ 动态阻尼 D ──→ 导纳模型 ──→ v_c(m/s) ──→ rpm ──→ CAN
+
+  11.1 Hopf 振荡器 (一阶欧拉积分)
+    ┌─────────────────────────────────────────────────┐
+    │  dx/dt = α·(μ - r²)·x - ω·y + ε·F_ext         │
+    │  dy/dt = α·(μ - r²)·y + ω·x                     │
+    │  r² = x² + y²                                   │
+    │                                                 │
+    │  α=10.0    收敛速度 (越大越快达到极限环)         │
+    │  μ=1.0     目标幅值平方 (极限环半径≈1)           │
+    │  ω≈5.655   角频率 rad/s (≈0.9Hz 步频)           │
+    │  ε=0.01    外力耦合系数 (越小越不敏感)           │
+    │                                                 │
+    │  外力 F_ext 直接耦合到 dx/dt，牵引振荡器相位     │
+    └─────────────────────────────────────────────────┘
+
+  11.2 变导纳控制
+    ┌─────────────────────────────────────────────────┐
+    │  D_current = D_base - λ·x                       │
+    │  M·a_c + D_current·v_c = F_ext                  │
+    │  v_c += a_c·dt                                  │
+    │                                                 │
+    │  M=15.0     虚拟质量 (kg)                        │
+    │  D_base=40.0 基础阻尼 (Ns/m), 范围[15,80]        │
+    │  λ=20.0     CPG状态→阻尼调制增益                  │
+    │                                                 │
+    │  核心思想: CPG状态x>0 → 阻尼降低 → 顺从易推       │
+    │           CPG状态x<0 → 阻尼增大 → 提供阻力        │
+    │           利用CPG节律输出自适应步态节奏            │
+    └─────────────────────────────────────────────────┘
+
+  11.3 电机指令转换 (Controller.c)
+    ┌─────────────────────────────────────────────────┐
+    │  轮半径: 0.075m (直径150mm)                      │
+    │  rpm = v_mps × 60 / (2π × 0.075)                │
+    │  限幅: ±400 rpm                                  │
+    │  左轮: +rpm (正转向前)                            │
+    │  右轮: -rpm (对向安装, 幅值一致)                  │
+    │  控制周期: 0.001s (1kHz)                         │
+    └─────────────────────────────────────────────────┘
+
+  11.4 Controller_Run 完整流程
+    ForceData_t* (仅用 fx) → 新鲜度检查(>100ms清零)
+    → 空指针/零时间戳保护 → F_x=0.0
+    → CPG_Step(&my_cpg, F_x, 0.001)
+    → v_cmd (m/s)
+    → mps_to_rpm(): clamp(v_cmd×60/(2π×0.075), -400, 400)
+    → MotorCmd_t { ctrl_mode=1, target_vel=rpm }
+
+  11.5 频率在线调节
+    CPG_Update_Frequency(hcpg, freq_hz)
+    接受范围: 0.3 ~ 2.0 Hz (正常步频), 超出丢弃, NaN/Inf 丢弃
+
+
+十二、串口命令行 (USART1, 115200-8-N-1)
+========================================
+
+  命令列表:
+    h / H  →  打印帮助: "Commands: h/p/t"
+    p / P  →  打印一次监控快照
+               F: fx=... fy=... fz=... ts=...
+               CMD: mode=... vel=... tq=... ts=...
+    t / T  →  切换周期日志流 ON/OFF (100ms 间隔)
+               格式: ts=<ms> | F[fx=...,fy=...,fz=...] | CMD[mode=...,vel=...,tq=...]
+
+  ArUco 视觉帧协议:
+    格式:  $ARUCO,seq,status,marker_id,x,y,z,roll_x10,pitch_x10,yaw_x10,dist*CS#
+    校验:  XOR of chars between '$' and '*', 大写Hex
+    例:    $ARUCO,1,1,5,100,200,300,0,0,450,1500*3F#
+    解析:  USART1中断(1字节) → line_buf → 首字符$ → parse_aruco_frame()
+           → XOR校验 → 验证"ARUCO,"前缀 → strtol解析10字段 → VisionPose_t → 更新全局快照
+
+
+十三、安全保护机制 (11项)
+=========================
+
+  力数据新鲜度   ── >100ms 未更新 → 清零 last_force, timestamp=0
+  电机反馈新鲜度 ── >100ms 未更新 → 清零 last_fb
+  NaN/Inf 防护   ── CPG_ClampFinite 全覆盖所有浮点状态
+  状态限幅       ── Hopf 振荡器 x/y 限幅 ±5.0
+  导数限幅       ── dx/dt, dy/dt, a_c 限幅 ±200.0
+  输入力限幅     ── F_ext 限幅 ±500 N
+  步长限幅       ── dt 限幅 [0.1ms, 100ms]
+  参数正值保护   ── CPG_EnsurePositive: alpha, mu, M, D_base >= 0.0001
+  输出速度限幅   ── v_c 限幅 [-0.5, 1.2] m/s
+  电机 RPM 限幅  ── target_rpm 限幅 ±400 rpm
+  频率范围       ── 步频输入仅接受 [0.3, 2.0] Hz
+  ────────────────────────────────────────────────────
+  队列溢出保护   ── ControlTask 只取队列最新一条 (mq_get_latest)
+  全局断言       ── configASSERT 失败 → 关中断 → 死循环
+
+
+十四、ArUco 视觉帧解析流程
+==========================
+
+  USART1 中断接收 (1字节IT)
+    ↓ HAL_UART_RxCpltCallback
+    ↓ 非 \r/\n → 填入 line_buf
+    ↓ \r 或 \n → log_line_ready = true
+    ↓
+  Log_task 主循环检测到 log_line_ready
+    ↓ 关中断, 复制命令行缓冲
+    ↓ 首字符 '$' → parse_aruco_frame()
+        ├── 校验 '*' 和 '#' 存在性
+        ├── 计算 XOR 校验和
+        ├── 比对校验和
+        ├── 验证 "ARUCO," 前缀
+        ├── strtol 解析 10 个整数字段
+        └── 填充 VisionPose_t
+    ↓ Monitor_UpdateVision → 更新全局快照
+    ↓ 打印 [VISION] 确认
+
+
+十五、MSP 初始化与时钟分配
+==========================
+
+  ┌───────────────┬──────────────────────┬──────────────────┬─────────────────────┐
+  │   外设/功能    │      MSP 初始化位置    │      时钟源       │     GPIO 配置位置     │
+  ├───────────────┼──────────────────────┼──────────────────┼─────────────────────┤
+  │ HAL 全局      │ stm32h7xx_hal_msp.c  │        -         │          -           │
+  │ SystemClock   │ main.c               │ HSE→PLL→250MHz   │          -           │
+  │ GPIO 端口时钟  │ gpio.c               │ GPIOA/B/D/H      │          -           │
+  │ USART1        │ usart.c              │ APB2=125MHz      │ PA9(TX), PA10(RX)    │
+  │ USART2(RS485) │ usart.c              │ APB1=125MHz      │ PD4(DE),PD5(TX),PD6(RX)│
+  │ FDCAN1        │ fdcan.c              │ PLL_q=62.5MHz    │ PD0(RX), PD1(TX)     │
+  │ FDCAN2        │ fdcan.c              │ PLL_q=62.5MHz    │ PB12(RX), PB13(TX)   │
+  │ PendSV        │ stm32h7xx_hal_msp.c  │        -         │          -           │
+  └───────────────┴──────────────────────┴──────────────────┴─────────────────────┘
+
+
+十六、完成度评估
+================
+
+  ✅ 完整模块:
+    力传感器采集 ── 100Hz MODBUS RTU, 双把手解析
+    CPG+变导纳控制 ── Hopf 振荡器 + 导纳模型 + 全链路限幅保护
+    电机速度控制 ── CANopen 速度模式, 左右轮差速
+    串口日志/命令行 ── h/p/t 命令 + 100ms日志 + ArUco 视觉帧解析
+    任务调度 ── FreeRTOS 7任务, 抢占式, 1kHz控制
+
+  ⚠️ 部分完成:
+    电机反馈接收 ── TPDO 已配置但回调仅设标志位, 未入控制回路
+
+  ❌ 占位 (仅 osDelay(1) 空转):
+    IMU 任务 / CAN Worker 任务 / 看门狗任务 / 软件定时器 (CtrlLoopTimer / LogFlushTimer)
+
+
+══════════════════════════════════════════════════════════════════════════════════
+                           数据流全景图 (从左到右)
+══════════════════════════════════════════════════════════════════════════════════
+
+  六维力传感器
+      │ RS485 MODBUS RTU, 100Hz
+      ▼
+  ForceSensorTask ─────── ForceQueue ──────→ ControlTask (1kHz, ★核心)
+  (AboveNormal)       (8×ForceData_t)          │          (Realtime)
+                                               │
+                                    ┌──────────┘
+                                    ▼
+                            新鲜度检查 (>100ms 清零)
+                                    │
+                                    ▼
+                            CPG_Step(F_x, 0.001)
+                           ┌───────────────────┐
+                           │   Hopf 振荡器       │
+                           │ dx/dt=α(μ-r²)x-ωy+εF│
+                           │ dy/dt=α(μ-r²)y+ωx  │
+                           │        │           │
+                           │  动态阻尼调制       │
+                           │ D=D_base-λ·x       │
+                           │        │           │
+                           │  导纳动力学         │
+                           │ M·a+D·v=F_ext      │
+                           │        │           │
+                           │  v_c (欧拉积分)    │
+                           └────────┬──────────┘
+                                    │
+                                    ▼
+                            NaN/Inf 检测 + 限幅
+                                    │
+                                    ▼
+                          Controller_Run()
+                          m/s → rpm 换算
+                          rpm = v_c×60/(2π×0.075)
+                          限幅 ±400 rpm
+                                    │
+                             MotorCmdQueue
+                           (8×MotorCmd_t)
+                                    │
+                                    ▼
+                            MotorTxTask ─────────── FDCAN1 CANopen
+                            (Realtime1)                │
+                                          ┌───────────┴───────────┐
+                                          ▼                       ▼
+                                   ZLAC8015D 左轮毂          ZLAC8015D 右轮毂
+                                    (+rpm 前进)              (-rpm 前进)
+                                          │                       │
+                                          └───────────┬───────────┘
+                                                      ▼
+                                                MonitorMutex
+                                                      │
+                                                      ▼
+                                                  Log_task
+                                              USART1 串口输出
+                                        (100ms日志 + 命令行 h/p/t)
+                                              ↑
+                                    ArUco 视觉帧 $ARUCO,...
+                                    (XOR校验 → VisionPose_t)
+（内容由AI生成，仅供参考）

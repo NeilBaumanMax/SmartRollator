@@ -1,0 +1,406 @@
+SmartRollator 数据流全景图
+==========================
+
+
+一、顶层数据流 (传感器 → 控制 → 执行)
+=====================================
+
+                           ┌──────────────┐
+                           │ 六维力传感器   │
+                           │ (把手1+把手2)  │
+                           └──────┬───────┘
+                                  │ RS485, MODBUS RTU, 115200-8-N-1
+                                  │ 查询帧 8 字节 → 响应帧 29 字节
+                                  │ 100Hz 轮询 (osDelay 10ms)
+                                  ▼
+                    ┌─────────────────────────┐
+                    │   ForceSensorTask        │
+                    │   优先级: AboveNormal    │
+                    │   栈: 2048 B             │
+                    │                         │
+                    │  USART2 阻塞收发         │
+                    │  PD4 控制 RS485 方向     │
+                    │  DE=SET(发送)→RESET(收) │
+                    │                         │
+                    │  processForceData()      │
+                    │  解析 → ForceData_t×2    │
+                    │  把手1: fx/fy/fz         │
+                    │  把手2: fx/fy/fz         │
+                    │  torque_x/y = 0.0f       │
+                    └───────────┬─────────────┘
+                                │
+                     ForceQueueHandle
+                     (容量 8, 元素 ForceData_t 24B)
+                     osMessageQueuePut()
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │     ControlTask           │  ◄═══════════════════════════════╗
+                    │   优先级: Realtime        │                                  ║
+                    │   栈: 4096 B              │                                  ║
+                    │   周期: 1kHz (vTaskDelayUntil)│                              ║
+                    │                           │                                  ║
+                    │  ┌─ 取最新力数据 ─────────┐│                                  ║
+                    │  │ mq_get_latest()        ││  丢弃旧数据, 只取队列最新一条     ║
+                    │  │ 新鲜度检查 >100ms → 清零││                                  ║
+                    │  └────────────────────────┘│                                  ║
+                    │              │            │                                  ║
+                    │              ▼            │                                  ║
+                    │  ┌─ CPG_Step() ──────────┐│                                  ║
+                    │  │                        ││                                  ║
+                    │  │  ┌───────────────────┐ ││                                  ║
+                    │  │  │ 1. 外力限幅        │ ││  F_ext = clamp(fx, ±500N)      ║
+                    │  │  │ 2. NaN/Inf 检测    │ ││                                  ║
+                    │  │  │ 3. 步长限幅        │ ││  dt = clamp(dt, 0.1ms, 100ms)  ║
+                    │  │  │                    │ ││                                  ║
+                    │  │  │ Hopf 振荡器积分    │ ││                                  ║
+                    │  │  │ r² = x² + y²       │ ││                                  ║
+                    │  │  │ dx = α(μ-r²)x      │ ││  α=10.0  μ=1.0  ω≈5.655         ║
+                    │  │  │     - ω·y           │ ││  → 约 0.9Hz 固有频率              ║
+                    │  │  │     + ε·F_ext      │ ││  ε=0.01 (外力耦合)              ║
+                    │  │  │ dy = α(μ-r²)y      │ ││                                  ║
+                    │  │  │     + ω·x           │ ││                                  ║
+                    │  │  │ x += dx·dt         │ ││  一阶欧拉积分                   ║
+                    │  │  │ y += dy·dt         │ ││                                  ║
+                    │  │  │ 4. 状态限幅        │ ││  x,y = clamp(x,y, ±5.0)         ║
+                    │  │  │ 5. 导数限幅        │ ││  dx,dy = clamp(dx,dy, ±200.0)   ║
+                    │  │  │                    │ ││                                  ║
+                    │  │  │ 变导纳控制         │ ││                                  ║
+                    │  │  │ D = D_base - λ·x   │ ││  D_base=40.0  λ=20.0           ║
+                    │  │  │ D = clamp(D,15,80) │ ││  导纳阻尼范围: [15, 80]         ║
+                    │  │  │ a_c = (F-D·v_c)/M  │ ││  M=15.0 (虚拟质量)             ║
+                    │  │  │ v_c += a_c·dt      │ ││  欧拉积分                       ║
+                    │  │  │ v_c = clamp(v_c,   │ ││  输出限幅: [-0.5, 1.2] m/s     ║
+                    │  │  │   -0.5, 1.2)       │ ││                                  ║
+                    │  │  │ 6. NaN/Inf 全链路  │ ││  CPG_ClampFinite 最终兜底       ║
+                    │  │  └───────────────────┘ ││                                  ║
+                    │  │          │             ││                                  ║
+                    │  │    返回 v_cmd (m/s)    ││                                  ║
+                    │  └────────────────────────┘│                                  ║
+                    │              │            │                                  ║
+                    │              ▼            │                                  ║
+                    │  ┌─ Controller_Run() ────┐│                                  ║
+                    │  │                        ││                                  ║
+                    │  │ mps_to_rpm(v_cmd):     ││                                  ║
+                    │  │ rpm = v_cmd×(60/2πR)  ││  R=0.075m (轮半径)              ║
+                    │  │     = v_cmd×127.32     ││  常数: 60/(2π×0.075)≈127.32     ║
+                    │  │ rpm = clamp(rpm,±400)  ││                                  ║
+                    │  │                        ││                                  ║
+                    │  │ 左轮 target_vel = +rpm ││  左轮正转 = 向前                 ║
+                    │  │ 右轮 target_vel = -rpm ││  右轮反转 = 向前 (对向安装)       ║
+                    │  │ ctrl_mode = 1          ││  1 = 速度模式                    ║
+                    │  └───────────┬────────────┘│                                  ║
+                    │              │            │                                  ║
+                    │    填充 MotorCmd_t         │                                  ║
+                    │    {target_vel, ctrl_mode} │                                  ║
+                    └──────────────┬────────────┘                                  ║
+                                   │                                              ║
+                        MotorCmdQueueHandle                                       ║
+                    (容量 8, 元素 MotorCmd_t 24B)                                  ║
+                        osMessageQueuePut()                                       ║
+                                   │                                              ║
+                                   ▼                                              ║
+                    ┌──────────────────────────┐                                   ║
+                    │     MotorTxTask            │                                  ║
+                    │   优先级: Realtime1        │                                  ║
+                    │   栈: 2048 B               │                                  ║
+                    │   阻塞等待队列消息          │                                  ║
+                    │                            │                                  ║
+                    │  osMessageQueueGet()       │                                  ║
+                    │  ZLAC_SetVelocity_rpm()    │                                  ║
+                    │    → 填充 CAN 帧(0x301)    │                                  ║
+                    │    Data[0..1] = left_rpm   │                                  ║
+                    │    Data[2..3] = right_rpm  │                                  ║
+                    │  HAL_FDCAN_AddMessageToTx  │                                  ║
+                    │    Fifo(FDCAN1, ...)        │                                  ║
+                    └────────────┬──────────────┘                                  ║
+                                 │                                                 ║
+                      FDCAN1 TX (PD1)                                              ║
+                      CANopen, 500kbps                                             ║
+                                 │                                                 ║
+                    ┌────────────┴────────────┐                                    ║
+                    ▼                         ▼                                   ║
+          ┌──────────────────┐    ┌──────────────────┐                            ║
+          │ ZLAC8015D 左轮毂  │    │ ZLAC8015D 右轮毂  │                            ║
+          │ CAN 节点 ID=0x01  │    │ CAN 节点 ID=0x02  │ (假设)                      ║
+          │                   │    │                   │                            ║
+          │ 接收 RPDO1 0x301  │    │ 接收 RPDO1 0x301  │                            ║
+          │ 速度模式           │    │ 速度模式           │                            ║
+          │ +rpm → 向前转动   │    │ -rpm → 向前转动   │                            ║
+          └────────┬──────────┘    └────────┬──────────┘                            ║
+                   │                        │                                       ║
+        ┌──────────┴──────────┐  ┌──────────┴──────────┐                            ║
+        │ 编码器反馈           │  │ 编码器反馈           │                            ║
+        │ TPDO0 0x181: 速度    │  │ TPDO0 0x181: 速度    │                            ║
+        │ TPDO1 0x281: 电流    │  │ TPDO1 0x281: 电流    │                            ║
+        │ TPDO2 0x381: 位置    │  │ TPDO2 0x381: 位置    │                            ║
+        │ TPDO3 0x481: 故障码  │  │ TPDO3 0x481: 故障码  │                            ║
+        │ NMT心跳 0x701        │  │ NMT心跳 0x701        │                            ║
+        └──────────┬──────────┘  └──────────┬──────────┘                            ║
+                   │                        │                                       ║
+                   └──────────┬─────────────┘                                       ║
+                              │ FDCAN1 RX (PD0)                                     ║
+                              │ Filter: 匹配 0x700~0x701                            ║
+                              │ RX FIFO0 中断 (优先级 5)                              ║
+                              ▼                                                     ║
+                    HAL_FDCAN_RxFifo0Callback()                                     ║
+                    → 解析 COB-ID, 填充 MotorFb_t                                   ║
+                    → MotorFbQueueHandle (预留, 未活跃)                              ║
+                    → osEventFlagsSet(HeartbeatFlags, HB_CAN)                       ║
+                    → osSemaphoreRelease(CANRxSemHandle) (预留)                     ║
+                                                                                    ║
+                                                                                    ║
+二、监控与调试数据流 (Log_task)                                                      ║
+================================================================================    ║
+                                                                                    ║
+                    ┌─────────────────────────┐                                      ║
+                    │     Log_task              │                                     ║
+                    │   优先级: BelowNormal7    │                                     ║
+                    │   栈: 4096 B (动态)       │                                     ║
+                    │   周期: 100ms             │                                     ║
+                    │                           │                                     ║
+                    │  ┌─ 取全局监控快照 ──────┐│                                     ║
+                    │  │ osMutexAcquire(        ││                                     ║
+                    │  │   MonitorMutex)        ││                                     ║
+                    │  │ 读 g_mon:              ││                                     ║
+                    │  │  g_mon.force (力)      ││                                     ║
+                    │  │  g_mon.cmd   (指令)    ││                                     ║
+                    │  │  g_mon.vision(视觉)    ││                                     ║
+                    │  │ osMutexRelease(        ││                                     ║
+                    │  │   MonitorMutex)        ││                                     ║
+                    │  └────────────────────────┘│                                     ║
+                    │              │            │                                     ║
+                    │  ┌─ 周期日志流 ──────────┐│                                     ║
+                    │  │ (t命令开启时)          ││                                     ║
+                    │  │ ts=<ms> |              ││                                     ║
+                    │  │ F[fx=..,fy=..,fz=..]   ││                                     ║
+                    │  │ CMD[mode=..,vel=..]    ││                                     ║
+                    │  └────────────────────────┘│                                     ║
+                    │              │            │                                     ║
+                    │  ┌─ 串口命令行 ──────────┐│                                     ║
+                    │  │ h → 帮助              ││                                     ║
+                    │  │ p → 打印监控快照       ││                                     ║
+                    │  │ t → 切换日志流         ││                                     ║
+                    │  └────────────────────────┘│                                     ║
+                    └──────────────┬────────────┘                                     ║
+                                   │ USART1 TX (PA9)                                  ║
+                                   │ 115200-8-N-1                                     ║
+                                   ▼                                                  ║
+                            串口终端 / PC 上位机                                       ║
+                                                                                    ║
+                                                                                    ║
+三、视觉数据流 (ArUco 位姿)                                                           ║
+================================================================================    ║
+                                                                                    ║
+        ┌────────────────────┐                                                       ║
+        │  外部视觉系统        │                                                      ║
+        │  (相机 + ArUco检测)  │                                                     ║
+        └──────────┬─────────┘                                                       ║
+                   │ 串口 (TTL/RS232 → USART1 RX PA10)                                ║
+                   │ $ARUCO,seq,status,id,x,y,z,roll,pitch,yaw,dist*CS#                ║
+                   ▼                                                                  ║
+        USART1 中断接收 (1字节 IT, 优先级 6)                                           ║
+        HAL_UART_RxCpltCallback()                                                     ║
+                   │                                                                  ║
+                   ├── 非 \r/\n → 填入 line_buf[]                                     ║
+                   │                                                                  ║
+                   └── \r 或 \n → log_line_ready = true                               ║
+                                  (通过信号量与 Log_task 同步)                          ║
+                                          │                                           ║
+                                          ▼                                           ║
+                                Log_task 主循环                                        ║
+                                  检测 log_line_ready                                  ║
+                                          │                                           ║
+                                          ▼                                           ║
+                                parse_aruco_frame()                                   ║
+                                  ① 查找 '*' 和 '#'                                   ║
+                                  ② 计算 XOR 校验和                                    ║
+                                  ③ 比对校验和 (Hex 2字符)                             ║
+                                  ④ 验证 "ARUCO," 前缀                                 ║
+                                  ⑤ strtol 解析 10 个字段                              ║
+                                     → VisionPose_t                                   ║
+                                  ⑥ Monitor_UpdateVision()                            ║
+                                     osMutexAcquire(MonitorMutex)                     ║
+                                     g_mon.vision = parsed                            ║
+                                     g_mon.ts_vision = HAL_GetTick()                 ║
+                                     osMutexRelease(MonitorMutex)                     ║
+                                  ⑦ printf("[VISION] ...")                            ║
+                                                                                    ║
+                                                                                    ║
+四、初始化数据流 (上电启动)                                                            ║
+================================================================================    ║
+                                                                                    ║
+    main.c: main()                                                                   ║
+      │                                                                              ║
+      ├─ HAL_Init()                         // HAL 库初始化                           ║
+      │   └─ HAL_MspInit()                  // PendSV 优先级=15                       ║
+      │                                                                              ║
+      ├─ SystemClock_Config()               // HSE→PLL→SYSCLK 250MHz                ║
+      │                                                                              ║
+      ├─ MX_GPIO_Init()                     // GPIOA/B/D/H 时钟使能                   ║
+      ├─ MX_USART1_UART_Init()              // 115200, IT 接收                        ║
+      ├─ MX_USART2_UART_Init()              // 115200, RS485, 阻塞                    ║
+      ├─ MX_FDCAN1_Init()                   // 500kbps, RX FIFO0 IT                  ║
+      ├─ MX_FDCAN2_Init()                   // 1.3Mbps (预留)                         ║
+      │                                                                              ║
+      ├─ MX_FreeRTOS_Init()                 // 内核启动                                ║
+      │   └─ MX_FREERTOS_Init(void)          // freertos.c                            ║
+      │       │                                                                      ║
+      │       ├─ 创建队列 (7个)                                                        ║
+      │       │   ForceQueue, IMUQueue, IMUProcessedQueue,                            ║
+      │       │   MotorFbQueue, MotorCmdQueue, LogQueue                               ║
+      │       │                                                                      ║
+      │       ├─ 创建信号量 (2个)                                                      ║
+      │       │   ForceRxSemHandle (初始=1, 计数)                                     ║
+      │       │   CANRxSemHandle   (初始=1, 计数)                                     ║
+      │       │                                                                      ║
+      │       ├─ 创建互斥量 (1个)                                                      ║
+      │       │   MonitorMutex                                                       ║
+      │       │                                                                      ║
+      │       ├─ 创建事件标志组 (2个)                                                   ║
+      │       │   HeartbeatFlagsHandle                                               ║
+      │       │   SystemStatusFlagsHandle                                            ║
+      │       │                                                                      ║
+      │       ├─ 创建软件定时器 (2个)                                                   ║
+      │       │   CtrlLoopTimerHandle (周期, 未启动)                                   ║
+      │       │   LogFlushTimerHandle (周期, 未启动)                                   ║
+      │       │                                                                      ║
+      │       └─ 创建任务 (7个)                                                        ║
+      │           ForceSensorTask, ControlTask, MotorTxTask,                          ║
+      │           Log_task, CAN_Worker_Task, IMUtask, WatchdogTask                    ║
+      │                                                                              ║
+      └─ osKernelStart()                     // 调度器启动, 永不返回                   ║
+                                             ║                                        ║
+                                             ▼                                        ║
+                                ControlTask 首次运行                                   ║
+                                (最高优先级, 先于其他任务)                              ║
+                                             │                                        ║
+                                    ┌────────┴────────┐                               ║
+                                    │ 驱动器初始化序列  │                               ║
+                                    │                  │                               ║
+                                    │ CAN_Init()       │                               ║
+                                    │ RPDO1_Config()   │                               ║
+                                    │ Profile_Velocity │                               ║
+                                    │   _Init()        │                               ║
+                                    │ NMT_Control()    │                               ║
+                                    │ Driver_Enable()  │                               ║
+                                    │ CPG_Init()       │                               ║
+                                    └────────┬─────────┘                               ║
+                                             │                                        ║
+                                             ▼                                        ║
+                                    进入 1kHz 控制循环                                 ║
+                                                                                    ║
+                                                                                    ║
+五、心跳监控数据流                                                                     ║
+================================================================================    ║
+                                                                                    ║
+    各任务周期设置心跳标志:                                                            ║
+                                                                                    ║
+    ForceSensorTask ──→ osEventFlagsSet(HeartbeatFlags, HB_FORCE) ◄── 每次轮询后     ║
+    ControlTask     ──→ osEventFlagsSet(HeartbeatFlags, HB_CTRL)  ◄── 每次控制循环   ║
+    MotorTxTask     ──→ (通过 CAN 回调)                            ◄── CAN 收发时     ║
+    Log_task        ──→ osEventFlagsSet(HeartbeatFlags, HB_LOG)   ◄── 每次日志输出   ║
+                                                                                    ║
+    HeartbeatFlagsHandle 标志位定义:                                                   ║
+      bit0 = HB_FORCE (0x01)    bit3 = HB_CTRL (0x08)                                ║
+      bit1 = HB_CAN   (0x02)    bit4 = HB_LOG  (0x10)                                ║
+      bit2 = HB_IMU   (0x04)                                                        ║
+                                                                                    ║
+    ⚠️ 心跳仅设置标志位，当前无独立监控任务消费；WatchdogTask 占位。                     ║
+
+
+六、多任务时序图 (一个 1ms 控制周期内)
+=====================================
+
+  时间 ──────────────────────────────────────────────→
+
+  t=0ms
+    │ SysTick 中断 (1kHz)
+    │   ├─ HAL_IncTick()
+    │   └─ xPortSysTickHandler()
+    │       └─ 任务切换检查
+    │
+  t=0~1ms
+    │ ControlTask (Realtime) 解除阻塞 (vTaskDelayUntil)
+    │   ├─ 读 ForceQueue 最新数据
+    │   ├─ CPG_Step(F_ext, 0.001)
+    │   └─ MotorCmdQueue 写入
+    │   → MotorTxTask 就绪
+    │
+    │ MotorTxTask (Realtime1) 抢占运行
+    │   ├─ 读 MotorCmdQueue
+    │   └─ FDCAN1 发送 CAN 帧 (0x301)
+    │   → 阻塞等待下一条
+    │
+    │ ForceSensorTask (AboveNormal) 就绪
+    │   ├─ USART2 发送 MODBUS 查询帧 (8B)
+    │   ├─ USART2 接收响应帧 (29B)
+    │   └─ ForceQueue 写入
+    │   → osDelay(10) 阻塞 10ms
+    │
+    │ Log_task (BelowNormal7) 后台运行
+    │   ├─ 检查串口输入缓冲
+    │   ├─ 周期日志输出 (每100ms)
+    │   └─ 处理 ArUco 帧
+    │
+  t=1ms
+    │ → 下一个 SysTick, 循环
+
+
+七、端到端延迟分析
+=================
+
+  力传感器采样延迟:
+    100Hz 轮询周期 = 10ms
+    USART2 收发耗时 ≈ (29+8)×10bits/115200 ≈ 3.2ms
+    → 传感器端延迟: ~11.6ms
+
+  控制延迟:
+    ControlTask 1kHz → 最坏情况等待 1ms
+    CPG_Step 计算量: 浮点×20+次, <10μs
+    → 控制计算延迟: <1ms
+
+  电机通信延迟:
+    MotorTxTask 队列等待: <1ms (ControlTask 写入后立即唤醒)
+    CAN 帧发送: 4字节×2, 500kbps → <0.5ms
+    → CAN 总线延迟: <1ms
+
+  ───────────────────────────────────────────
+  端到端总延迟: 约 12~14ms (传感器 → 电机执行)
+  ───────────────────────────────────────────
+
+
+八、数据新鲜度与安全保护全景
+===========================
+
+  ┌─────────────────────────────────────────────────────┐
+  │                    保护层级                          │
+  │                                                    │
+  │  第1层: 输入保护                                     │
+  │    ForceSensorTask → 检查响应帧长度 (29B)            │
+  │                  → 空指针检查                        │
+  │                                                    │
+  │  第2层: 队列传输保护                                 │
+  │    ForceQueue → 容量8, 溢出自动丢弃最旧               │
+  │    ControlTask → mq_get_latest(), 只取最新          │
+  │                                                    │
+  │  第3层: 新鲜度检查 (ControlTask)                     │
+  │    now - last_force.timestamp > 100ms → 清零 F_x=0  │
+  │    now - last_fb.timestamp    > 100ms → 清零反馈    │
+  │                                                    │
+  │  第4层: 算法层保护 (CPG_Step)                        │
+  │    输入限幅    F_ext ∈ [-500, 500] N                 │
+  │    NaN/Inf检测 每个浮点状态全覆盖                     │
+  │    步长限幅    dt ∈ [0.1ms, 100ms]                  │
+  │    状态限幅    x, y ∈ [-5.0, 5.0]                   │
+  │    导数限幅    dx, dy, a_c ∈ [-200, 200]            │
+  │    参数正值    α, μ, M, D >= 0.0001                │
+  │                                                    │
+  │  第5层: 输出保护                                     │
+  │    v_c ∈ [-0.5, 1.2] m/s                           │
+  │    target_rpm ∈ [-400, 400] rpm                    │
+  │                                                    │
+  │  第6层: 全局兜底                                     │
+  │    configASSERT 死循环 (不会产生失控行为)             │
+  └─────────────────────────────────────────────────────┘
+（内容由AI生成，仅供参考）

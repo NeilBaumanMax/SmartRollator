@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1150">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+      text { font-family: 'JetBrains Mono', 'Noto Sans SC', 'PingFang SC', sans-serif; }
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <!-- Arrow: cyan (sensor/blue) -->
+    <marker id="arr-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+    </marker>
+    <!-- Arrow: emerald (control/green) -->
+    <marker id="arr-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+    </marker>
+    <!-- Arrow: orange (actuator) -->
+    <marker id="arr-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fb923c"/>
+    </marker>
+    <!-- Arrow: violet (monitor) -->
+    <marker id="arr-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+    </marker>
+    <!-- Arrow: amber (vision) -->
+    <marker id="arr-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+    </marker>
+    <!-- Arrow: rose (safety) -->
+    <marker id="arr-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/>
+    </marker>
+    <!-- Arrow: slate (generic) -->
+    <marker id="arr-slate" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <!-- Open arrow for async -->
+    <marker id="arr-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polyline points="0 0, 10 3.5, 0 7" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- TITLE -->
+  <!-- ════════════════════════════════════════ -->
+  <text x="30" y="32" fill="white" font-size="16" font-weight="700">SmartRollator 数据流全景图</text>
+  <text x="30" y="52" fill="#94a3b8" font-size="10">STM32H723VGTx + FreeRTOS  ·  控制周期 1kHz  ·  端到端延迟 ~12-14ms</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: 顶层数据流 (主流程) -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="20" y="340" width="1820" height="240" rx="10" fill="none" stroke="#22d3ee" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+  <text x="35" y="358" fill="#22d3ee" font-size="9" font-weight="600">顶层数据流: 传感器 → 控制 → 执行</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: ControlTask 内部算法展开 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="520" y="200" width="520" height="540" rx="10" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="535" y="218" fill="#34d399" font-size="10" font-weight="600">ControlTask 内部算法 (1kHz, Realtime)</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: 监控与调试 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="20" y="780" width="1200" height="180" rx="10" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+  <text x="35" y="798" fill="#a78bfa" font-size="9" font-weight="600">监控与调试: Log_task (100ms, BelowNormal7) + 串口命令行</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: ArUco 视觉流 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="20" y="70" width="1000" height="110" rx="10" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+  <text x="35" y="88" fill="#fbbf24" font-size="9" font-weight="600">视觉定位: ArUco 位姿解析 (USART1 RX 中断)</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: CAN 反馈流 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="1080" y="780" width="500" height="180" rx="10" fill="none" stroke="#fb923c" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+  <text x="1095" y="798" fill="#fb923c" font-size="9" font-weight="600">CAN 反馈流: TPDO → FDCAN1 RX 中断</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- REGION: 安全保护 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect x="1650" y="70" width="230" height="870" rx="10" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="1665" y="88" fill="#fb7185" font-size="10" font-weight="600">6层安全保护</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  /* MAIN DATA FLOW — TOP ROW (sensor → control → actuator) */
+  /* ═══════════════════════════════════════════════════════ */
+
+  /* ─── 六维力传感器 ─── */
+  <rect x="40" y="395" width="160" height="65" rx="6" fill="#0f172a"/>
+  <rect x="40" y="395" width="160" height="65" rx="6" fill="rgba(8,51,68,0.5)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="120" y="420" fill="white" font-size="11" font-weight="600" text-anchor="middle">六维力传感器</text>
+  <text x="120" y="440" fill="#94a3b8" font-size="9" text-anchor="middle">把手1 + 把手2</text>
+  <text x="120" y="453" fill="#64748b" font-size="8" text-anchor="middle">Fx/Fy/Fz 六通道</text>
+
+  /* Arrow: sensor → ForceSensorTask */
+  <line x1="200" y1="427" x2="270" y2="427" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arr-cyan)"/>
+  <text x="235" y="418" fill="#22d3ee" font-size="7" text-anchor="middle">RS485</text>
+  <text x="235" y="448" fill="#64748b" font-size="7" text-anchor="middle">MODBUS RTU</text>
+  <text x="235" y="458" fill="#64748b" font-size="7" text-anchor="middle">115200-8-N-1</text>
+
+  /* ─── ForceSensorTask ─── */
+  <rect x="275" y="390" width="170" height="75" rx="6" fill="#0f172a"/>
+  <rect x="275" y="390" width="170" height="75" rx="6" fill="rgba(8,51,68,0.5)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="360" y="414" fill="white" font-size="10" font-weight="600" text-anchor="middle">ForceSensorTask</text>
+  <text x="360" y="432" fill="#94a3b8" font-size="9" text-anchor="middle">AboveNormal 2048B</text>
+  <text x="360" y="448" fill="#64748b" font-size="8" text-anchor="middle">100Hz 轮询 USART2+RS485</text>
+  <text x="360" y="460" fill="#64748b" font-size="8" text-anchor="middle">processForceData()</text>
+
+  /* Arrow: ForceSensorTask → ForceQueue */
+  <line x1="445" y1="427" x2="515" y2="427" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arr-cyan)"/>
+  <text x="475" y="418" fill="#64748b" font-size="7" text-anchor="middle">osMsgQPut</text>
+
+  /* ─── ForceQueue ─── */
+  <rect x="490" y="402" width="50" height="50" rx="4" fill="#0f172a"/>
+  <rect x="490" y="402" width="50" height="50" rx="4" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="515" y="423" fill="white" font-size="9" font-weight="600" text-anchor="middle">FQ</text>
+  <text x="515" y="440" fill="#64748b" font-size="7" text-anchor="middle">8×24B</text>
+
+  /* Arrow: ForceQueue → ControlTask */
+  <line x1="540" y1="427" x2="560" y2="427" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr-emerald)"/>
+  <text x="550" y="418" fill="#64748b" font-size="7" text-anchor="middle">mq_get_latest</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* CONTROL TASK INTERNAL (expanded box) */
+  /* ═══════════════════════════════════════════ */
+
+  /* ─── 新鲜度检查 ─── */
+  <rect x="545" y="240" width="150" height="48" rx="5" fill="#0f172a"/>
+  <rect x="545" y="240" width="150" height="48" rx="5" fill="rgba(6,78,59,0.35)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="620" y="262" fill="white" font-size="10" font-weight="600" text-anchor="middle">新鲜度检查</text>
+  <text x="620" y="278" fill="#64748b" font-size="8" text-anchor="middle">>100ms → F_x=0</text>
+
+  /* Arrow within CPG: 新鲜度 → Hopf */
+  <line x1="620" y1="288" x2="620" y2="308" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr-emerald)"/>
+
+  /* ─── Hopf CPG 振荡器 ─── */
+  <rect x="545" y="310" width="150" height="95" rx="5" fill="#0f172a"/>
+  <rect x="545" y="310" width="150" height="95" rx="5" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="620" y="330" fill="white" font-size="10" font-weight="600" text-anchor="middle">Hopf CPG 振荡器</text>
+  <text x="620" y="348" fill="#94a3b8" font-size="8" text-anchor="middle">r²=x²+y²</text>
+  <text x="620" y="362" fill="#64748b" font-size="7.5" text-anchor="middle">dx=α(μ-r²)x-ωy+ε·F</text>
+  <text x="620" y="376" fill="#64748b" font-size="7.5" text-anchor="middle">dy=α(μ-r²)y+ωx</text>
+  <text x="620" y="394" fill="#64748b" font-size="7.5" text-anchor="middle">α=10 μ=1 ω≈0.9Hz ε=0.01</text>
+
+  /* Arrow within CPG: Hopf → 变导纳 */
+  <line x1="620" y1="405" x2="620" y2="428" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr-emerald)"/>
+
+  /* ─── 变导纳控制 ─── */
+  <rect x="545" y="430" width="150" height="80" rx="5" fill="#0f172a"/>
+  <rect x="545" y="430" width="150" height="80" rx="5" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="620" y="452" fill="white" font-size="10" font-weight="600" text-anchor="middle">变导纳控制</text>
+  <text x="620" y="470" fill="#64748b" font-size="8" text-anchor="middle">D=D_base-λ·x [15,80]</text>
+  <text x="620" y="486" fill="#64748b" font-size="8" text-anchor="middle">M·a+D·v=F_ext</text>
+  <text x="620" y="502" fill="#64748b" font-size="7.5" text-anchor="middle">M=15 D_base=40 λ=20</text>
+
+  /* Arrow within CPG: 变导纳 → v_c */
+  <line x1="695" y1="470" x2="730" y2="430" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr-emerald)"/>
+
+  /* ─── v_c 输出 m/s ─── */
+  <rect x="730" y="405" width="140" height="50" rx="5" fill="#0f172a"/>
+  <rect x="730" y="405" width="140" height="50" rx="5" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="800" y="428" fill="white" font-size="10" font-weight="600" text-anchor="middle">v_c 速度指令</text>
+  <text x="800" y="446" fill="#64748b" font-size="8" text-anchor="middle">[-0.5, 1.2] m/s</text>
+
+  /* Arrow within CPG: v_c → m/s→rpm */
+  <line x1="800" y1="455" x2="800" y2="478" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr-emerald)"/>
+
+  /* ─── m/s → rpm ─── */
+  <rect x="730" y="480" width="140" height="42" rx="5" fill="#0f172a"/>
+  <rect x="730" y="480" width="140" height="42" rx="5" fill="rgba(6,78,59,0.35)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="800" y="500" fill="white" font-size="10" font-weight="600" text-anchor="middle">m/s → rpm</text>
+  <text x="800" y="516" fill="#64748b" font-size="8" text-anchor="middle">rpm=v×60/(2π×0.075)</text>
+
+  /* Arrow within CPG: rpm → 限幅 */
+  <line x1="800" y1="522" x2="800" y2="542" stroke="#34d399" stroke-width="1.2" marker-end="url(#arr-emerald)"/>
+
+  /* ─── 限幅 ─── */
+  <rect x="730" y="544" width="140" height="42" rx="5" fill="#0f172a"/>
+  <rect x="730" y="544" width="140" height="42" rx="5" fill="rgba(6,78,59,0.35)" stroke="#34d399" stroke-width="1.2"/>
+  <text x="800" y="564" fill="white" font-size="10" font-weight="600" text-anchor="middle">clamp ±400 rpm</text>
+  <text x="800" y="580" fill="#64748b" font-size="8" text-anchor="middle">左+rpm 右-rpm</text>
+
+  /* Final output from ControlTask */
+  <line x1="870" y1="565" x2="910" y2="565" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr-emerald)"/>
+
+  /* ─── MotorCmd 输出 ─── */
+  <rect x="915" y="540" width="100" height="50" rx="4" fill="#0f172a"/>
+  <rect x="915" y="540" width="100" height="50" rx="4" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.2"/>
+  <text x="965" y="562" fill="white" font-size="9" font-weight="600" text-anchor="middle">MCQ</text>
+  <text x="965" y="578" fill="#64748b" font-size="7" text-anchor="middle">8×24B</text>
+
+  /* Arrow: MotorCmdQueue → MotorTxTask */
+  <line x1="1040" y1="565" x2="1090" y2="565" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  /* Arrow from main flow entering ControlTask */
+  <text x="565" y="232" fill="#34d399" font-size="8" text-anchor="start">Controller_Run(fx, dt=0.001)</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* MAIN FLOW CONTINUED (after ControlTask) */
+  /* ═══════════════════════════════════════════ */
+
+  /* ─── MotorTxTask ─── */
+  <rect x="1080" y="390" width="160" height="75" rx="6" fill="#0f172a"/>
+  <rect x="1080" y="390" width="160" height="75" rx="6" fill="rgba(120,53,15,0.4)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1160" y="414" fill="white" font-size="10" font-weight="600" text-anchor="middle">MotorTxTask</text>
+  <text x="1160" y="432" fill="#94a3b8" font-size="9" text-anchor="middle">Realtime1 2048B</text>
+  <text x="1160" y="448" fill="#64748b" font-size="8" text-anchor="middle">ZLAC_SetVelocity()</text>
+  <text x="1160" y="460" fill="#64748b" font-size="8" text-anchor="middle">→ CAN 帧填充 (0x301)</text>
+
+  /* Arrow: MotorTxTask → FDCAN1 */
+  <line x1="1240" y1="427" x2="1305" y2="427" stroke="#fb923c" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="1272" y="418" fill="#fb923c" font-size="8" text-anchor="middle">CANopen</text>
+  <text x="1272" y="448" fill="#64748b" font-size="7" text-anchor="middle">500kbps</text>
+
+  /* ─── FDCAN1 ─── */
+  <rect x="1310" y="390" width="150" height="75" rx="6" fill="#0f172a"/>
+  <rect x="1310" y="390" width="150" height="75" rx="6" fill="rgba(120,53,15,0.4)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1385" y="414" fill="white" font-size="10" font-weight="600" text-anchor="middle">FDCAN1</text>
+  <text x="1385" y="432" fill="#94a3b8" font-size="9" text-anchor="middle">PD0 RX / PD1 TX</text>
+  <text x="1385" y="448" fill="#64748b" font-size="8" text-anchor="middle">HAL_FDCAN_AddTx</text>
+  <text x="1385" y="460" fill="#64748b" font-size="8" text-anchor="middle">COB-ID: 0x301</text>
+
+  /* Arrow branch: FDCAN1 → 左轮 + 右轮 */
+  <path d="M 1460 427 L 1485 427 L 1485 400 L 1520 400" stroke="#fb923c" stroke-width="1.5" fill="none" marker-end="url(#arr-orange)"/>
+  <path d="M 1485 427 L 1485 460 L 1520 460" stroke="#fb923c" stroke-width="1.5" fill="none" marker-end="url(#arr-orange)"/>
+
+  /* ─── 左轮毂电机 ─── */
+  <rect x="1525" y="375" width="155" height="55" rx="5" fill="#0f172a"/>
+  <rect x="1525" y="375" width="155" height="55" rx="5" fill="rgba(120,53,15,0.5)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1602" y="398" fill="white" font-size="10" font-weight="600" text-anchor="middle">左轮毂 ZLAC8015D</text>
+  <text x="1602" y="416" fill="#94a3b8" font-size="9" text-anchor="middle">Node 0x01</text>
+  <text x="1602" y="428" fill="#64748b" font-size="8" text-anchor="middle">+rpm (正转向前)</text>
+
+  /* ─── 右轮毂电机 ─── */
+  <rect x="1525" y="440" width="155" height="55" rx="5" fill="#0f172a"/>
+  <rect x="1525" y="440" width="155" height="55" rx="5" fill="rgba(120,53,15,0.5)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1602" y="463" fill="white" font-size="10" font-weight="600" text-anchor="middle">右轮毂 ZLAC8015D</text>
+  <text x="1602" y="481" fill="#94a3b8" font-size="9" text-anchor="middle">Node 0x02</text>
+  <text x="1602" y="493" fill="#64748b" font-size="8" text-anchor="middle">-rpm (反转向前)</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* VISION FLOW (ArUco) */
+  /* ═══════════════════════════════════════════ */
+
+  /* ─── 外部相机 ─── */
+  <rect x="40" y="100" width="130" height="55" rx="5" fill="#0f172a"/>
+  <rect x="40" y="100" width="130" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="105" y="123" fill="white" font-size="10" font-weight="600" text-anchor="middle">外部相机</text>
+  <text x="105" y="143" fill="#64748b" font-size="8" text-anchor="middle">ArUco 检测</text>
+
+  /* Arrow: 相机 → USART1 RX */
+  <line x1="170" y1="127" x2="230" y2="127" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+  <text x="200" y="120" fill="#64748b" font-size="7" text-anchor="middle">串口 RX</text>
+
+  /* ─── USART1 RX ─── */
+  <rect x="235" y="100" width="140" height="55" rx="5" fill="#0f172a"/>
+  <rect x="235" y="100" width="140" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="305" y="122" fill="white" font-size="10" font-weight="600" text-anchor="middle">USART1 RX</text>
+  <text x="305" y="140" fill="#64748b" font-size="8" text-anchor="middle">PA10, IT接收</text>
+  <text x="305" y="152" fill="#64748b" font-size="7" text-anchor="middle">1字节中断(优先级6)</text>
+
+  /* Arrow: USART1 RX → $ARUCO帧 */
+  <line x1="375" y1="127" x2="435" y2="127" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+  <text x="405" y="120" fill="#64748b" font-size="7" text-anchor="middle">line_buf</text>
+
+  /* ─── $ARUCO 帧 ─── */
+  <rect x="440" y="100" width="170" height="55" rx="5" fill="#0f172a"/>
+  <rect x="440" y="100" width="170" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="525" y="122" fill="white" font-size="10" font-weight="600" text-anchor="middle">$ARUCO 帧解析</text>
+  <text x="525" y="140" fill="#64748b" font-size="8" text-anchor="middle">$ARUCO,seq,id,x,y,...</text>
+  <text x="525" y="152" fill="#64748b" font-size="7" text-anchor="middle">XOR校验 → parse_aruco</text>
+
+  /* Arrow: $ARUCO → VisionPose_t */
+  <line x1="610" y1="127" x2="670" y2="127" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+
+  /* ─── VisionPose_t ─── */
+  <rect x="675" y="100" width="150" height="55" rx="5" fill="#0f172a"/>
+  <rect x="675" y="100" width="150" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="750" y="122" fill="white" font-size="10" font-weight="600" text-anchor="middle">VisionPose_t</text>
+  <text x="750" y="140" fill="#64748b" font-size="8" text-anchor="middle">x/y/z (mm), roll/pitch/yaw</text>
+  <text x="750" y="152" fill="#64748b" font-size="7" text-anchor="middle">marker_id, seq, dist</text>
+
+  /* Arrow: VisionPose_t → MonitorMutex (down to monitoring section) */
+  <path d="M 750 155 L 750 780 L 680 780 L 680 810" stroke="#fbbf24" stroke-width="1.2" fill="none" marker-end="url(#arr-amber)" stroke-dasharray="5,3"/>
+  <text x="760" y="450" fill="#fbbf24" font-size="7" transform="rotate(90, 760, 450)">Monitor_UpdateVision()</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* MONITORING FLOW */
+  /* ═══════════════════════════════════════════ */
+
+  /* ─── Log_task ─── */
+  <rect x="40" y="835" width="155" height="65" rx="6" fill="#0f172a"/>
+  <rect x="40" y="835" width="155" height="65" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="117" y="858" fill="white" font-size="10" font-weight="600" text-anchor="middle">Log_task</text>
+  <text x="117" y="876" fill="#94a3b8" font-size="9" text-anchor="middle">BelowNormal7 4096B</text>
+  <text x="117" y="892" fill="#64748b" font-size="8" text-anchor="middle">100ms 周期</text>
+
+  /* Arrow: Log_task → MonitorMutex */
+  <line x1="195" y1="867" x2="260" y2="867" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-violet)"/>
+  <text x="227" y="858" fill="#64748b" font-size="7" text-anchor="middle">osMutexAcquire</text>
+
+  /* ─── MonitorMutex ─── */
+  <rect x="265" y="835" width="140" height="65" rx="6" fill="#0f172a"/>
+  <rect x="265" y="835" width="140" height="65" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="335" y="858" fill="white" font-size="10" font-weight="600" text-anchor="middle">MonitorMutex</text>
+  <text x="335" y="876" fill="#94a3b8" font-size="9" text-anchor="middle">互斥量</text>
+  <text x="335" y="892" fill="#64748b" font-size="8" text-anchor="middle">保护 g_mon 访问</text>
+
+  /* Arrow: MonitorMutex → g_mon */
+  <line x1="405" y1="867" x2="470" y2="867" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-violet)"/>
+
+  /* ─── g_mon 快照 ─── */
+  <rect x="475" y="830" width="180" height="75" rx="6" fill="#0f172a"/>
+  <rect x="475" y="830" width="180" height="75" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="565" y="854" fill="white" font-size="10" font-weight="600" text-anchor="middle">g_mon 监控快照</text>
+  <text x="565" y="872" fill="#94a3b8" font-size="9" text-anchor="middle">monitor_snapshot_t</text>
+  <text x="565" y="888" fill="#64748b" font-size="8" text-anchor="middle">force / cmd / vision</text>
+  <text x="565" y="900" fill="#64748b" font-size="7" text-anchor="middle">ts_force / ts_cmd / ts_vision</text>
+
+  /* Arrow: g_mon → USART1 TX */
+  <line x1="655" y1="867" x2="720" y2="867" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-violet)"/>
+
+  /* ─── USART1 TX ─── */
+  <rect x="725" y="835" width="150" height="65" rx="6" fill="#0f172a"/>
+  <rect x="725" y="835" width="150" height="65" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="800" y="858" fill="white" font-size="10" font-weight="600" text-anchor="middle">USART1 TX</text>
+  <text x="800" y="876" fill="#94a3b8" font-size="9" text-anchor="middle">PA9 115200-8-N-1</text>
+  <text x="800" y="892" fill="#64748b" font-size="8" text-anchor="middle">h帮助 p快照 t日志</text>
+
+  /* Arrow: USART1 TX → 终端 */
+  <line x1="875" y1="867" x2="940" y2="867" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr-violet)"/>
+
+  /* ─── 串口终端 ─── */
+  <rect x="945" y="840" width="130" height="55" rx="5" fill="#0f172a"/>
+  <rect x="945" y="840" width="130" height="55" rx="5" fill="rgba(76,29,149,0.3)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="1010" y="863" fill="white" font-size="10" font-weight="600" text-anchor="middle">串口终端</text>
+  <text x="1010" y="883" fill="#64748b" font-size="8" text-anchor="middle">PC 上位机调试</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* CAN FEEDBACK FLOW */
+  /* ═══════════════════════════════════════════ */
+
+  /* ─── 电机 TPDO ─── */
+  <rect x="1095" y="835" width="200" height="55" rx="5" fill="#0f172a"/>
+  <rect x="1095" y="835" width="200" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1195" y="856" fill="white" font-size="10" font-weight="600" text-anchor="middle">电机 TPDO 反馈</text>
+  <text x="1195" y="874" fill="#64748b" font-size="8" text-anchor="middle">0x181 实际速度 · 0x281 电流</text>
+  <text x="1195" y="886" fill="#64748b" font-size="8" text-anchor="middle">0x381 位置 · 0x481 故障码</text>
+
+  /* Arrow: TPDO → FDCAN1 RX 中断 */
+  <line x1="1295" y1="862" x2="1330" y2="862" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  /* ─── FDCAN1 RX 中断 ─── */
+  <rect x="1335" y="835" width="145" height="55" rx="5" fill="#0f172a"/>
+  <rect x="1335" y="835" width="145" height="55" rx="5" fill="rgba(120,53,15,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="1407" y="856" fill="white" font-size="9" font-weight="600" text-anchor="middle">FDCAN1 RX IT</text>
+  <text x="1407" y="874" fill="#64748b" font-size="8" text-anchor="middle">FIFO0中断(优先级5)</text>
+  <text x="1407" y="886" fill="#64748b" font-size="7" text-anchor="middle">HAL_FDCAN_RxFifo0Cb</text>
+
+  /* Arrow: FDCAN1 RX → MotorFb_t */
+  <line x1="1407" y1="890" x2="1407" y2="910" stroke="#fb923c" stroke-width="1.2" marker-end="url(#arr-orange)"/>
+
+  /* ─── MotorFb_t ─── */
+  <rect x="1345" y="912" width="125" height="42" rx="4" fill="#0f172a"/>
+  <rect x="1345" y="912" width="125" height="42" rx="4" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.2"/>
+  <text x="1407" y="932" fill="white" font-size="9" font-weight="600" text-anchor="middle">MotorFb_t</text>
+  <text x="1407" y="948" fill="#64748b" font-size="7" text-anchor="middle">pos/vel/torque/status</text>
+
+  /* Arrow: MotorFb_t → HeartbeatFlags */
+  <line x1="1407" y1="954" x2="1407" y2="970" stroke="#fb923c" stroke-width="1.2" marker-end="url(#arr-orange)"/>
+
+  /* ─── HeartbeatFlags ─── */
+  <rect x="1340" y="972" width="135" height="42" rx="4" fill="#0f172a"/>
+  <rect x="1340" y="972" width="135" height="42" rx="4" fill="rgba(120,53,15,0.3)" stroke="#fb923c" stroke-width="1.2"/>
+  <text x="1407" y="992" fill="white" font-size="9" font-weight="600" text-anchor="middle">HeartbeatFlags</text>
+  <text x="1407" y="1008" fill="#64748b" font-size="7" text-anchor="middle">osEventFlagsSet(HB_CAN)</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* SAFETY LAYERS (right sidebar) */
+  /* ═══════════════════════════════════════════ */
+
+  <text x="1765" y="112" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第1层: 输入保护</text>
+  <text x="1765" y="128" fill="#64748b" font-size="7.5" text-anchor="middle">检查响应帧长度(29B)</text>
+  <text x="1765" y="142" fill="#64748b" font-size="7.5" text-anchor="middle">空指针/零时间戳保护</text>
+
+  <line x1="1670" y1="155" x2="1860" y2="155" stroke="#fb7185" stroke-width="0.5" opacity="0.3"/>
+
+  <text x="1765" y="175" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第2层: 队列传输</text>
+  <text x="1765" y="191" fill="#64748b" font-size="7.5" text-anchor="middle">容量8 溢出自动丢弃</text>
+  <text x="1765" y="205" fill="#64748b" font-size="7.5" text-anchor="middle">mq_get_latest 只取最新</text>
+
+  <line x1="1670" y1="218" x2="1860" y2="218" stroke="#fb7185" stroke-width="0.5" opacity="0.3"/>
+
+  <text x="1765" y="238" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第3层: 新鲜度检查</text>
+  <text x="1765" y="254" fill="#64748b" font-size="7.5" text-anchor="middle">now - ts > 100ms</text>
+  <text x="1765" y="268" fill="#64748b" font-size="7.5" text-anchor="middle">→ 清零 F_x=0</text>
+  <text x="1765" y="282" fill="#64748b" font-size="7.5" text-anchor="middle">电机反馈同理清零</text>
+
+  <line x1="1670" y1="298" x2="1860" y2="298" stroke="#fb7185" stroke-width="0.5" opacity="0.3"/>
+
+  <rect x="1665" y="308" width="200" height="200" rx="6" fill="none" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="1765" y="330" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第4层: 算法层限幅 (核心)</text>
+  <text x="1765" y="350" fill="#64748b" font-size="7.5" text-anchor="middle">NaN/Inf → CPG_ClampFinite</text>
+  <text x="1765" y="368" fill="#64748b" font-size="7.5" text-anchor="middle">F_ext: [-500, 500] N</text>
+  <text x="1765" y="386" fill="#64748b" font-size="7.5" text-anchor="middle">状态 x/y: [-5.0, 5.0]</text>
+  <text x="1765" y="404" fill="#64748b" font-size="7.5" text-anchor="middle">导数 dx/dy/a_c: [-200,200]</text>
+  <text x="1765" y="422" fill="#64748b" font-size="7.5" text-anchor="middle">D阻尼: [15, 80]</text>
+  <text x="1765" y="440" fill="#64748b" font-size="7.5" text-anchor="middle">步长 dt: [0.1ms, 100ms]</text>
+  <text x="1765" y="458" fill="#64748b" font-size="7.5" text-anchor="middle">参数正值 ≥ 0.0001</text>
+  <text x="1765" y="476" fill="#64748b" font-size="7.5" text-anchor="middle">步频: [0.3, 2.0] Hz</text>
+  <text x="1765" y="498" fill="#64748b" font-size="7.5" text-anchor="middle">CPG_EnsurePositive()</text>
+
+  <line x1="1670" y1="518" x2="1860" y2="518" stroke="#fb7185" stroke-width="0.5" opacity="0.3"/>
+
+  <text x="1765" y="540" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第5层: 输出保护</text>
+  <text x="1765" y="556" fill="#64748b" font-size="7.5" text-anchor="middle">v_c: [-0.5, 1.2] m/s</text>
+  <text x="1765" y="572" fill="#64748b" font-size="7.5" text-anchor="middle">target_rpm: [-400, 400]</text>
+  <text x="1765" y="588" fill="#64748b" font-size="7.5" text-anchor="middle">MotorCmd 限幅</text>
+
+  <line x1="1670" y1="602" x2="1860" y2="602" stroke="#fb7185" stroke-width="0.5" opacity="0.3"/>
+
+  <text x="1765" y="624" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">第6层: 全局兜底</text>
+  <text x="1765" y="640" fill="#64748b" font-size="7.5" text-anchor="middle">configASSERT 失败</text>
+  <text x="1765" y="656" fill="#64748b" font-size="7.5" text-anchor="middle">→ 关中断 → 死循环</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* PERFORMANCE ANNOTATION */
+  /* ═══════════════════════════════════════════ */
+  <rect x="26" y="1000" width="250" height="65" rx="6" fill="#0f172a"/>
+  <rect x="26" y="1000" width="250" height="65" rx="6" fill="rgba(59,130,246,0.2)" stroke="#60a5fa" stroke-width="1.2"/>
+  <text x="151" y="1022" fill="#60a5fa" font-size="11" font-weight="600" text-anchor="middle">端到端延迟 ~12-14ms</text>
+  <text x="151" y="1042" fill="#94a3b8" font-size="8" text-anchor="middle">传感器 11.6ms + 控制 ≤1ms</text>
+  <text x="151" y="1058" fill="#94a3b8" font-size="8" text-anchor="middle">+ CAN 总线 ≤1ms</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* FREERTOS TASK INFO (bottom-left) */
+  /* ═══════════════════════════════════════════ */
+  <rect x="290" y="1000" width="470" height="65" rx="6" fill="#0f172a"/>
+  <rect x="290" y="1000" width="470" height="65" rx="6" fill="rgba(30,41,59,0.4)" stroke="#94a3b8" stroke-width="1"/>
+  <text x="525" y="1020" fill="white" font-size="9" font-weight="600" text-anchor="middle">FreeRTOS 任务: 7个 · 抢占式调度 · 堆15KB · 滴答1kHz · 56优先级 · Heap_4</text>
+  <text x="525" y="1038" fill="#64748b" font-size="8" text-anchor="middle">ForceSensor(AboveNormal) Control(Realtime) MotorTx(Realtime1) Log(BelowNormal7)</text>
+  <text x="525" y="1054" fill="#64748b" font-size="8" text-anchor="middle">CAN_Worker(High/占位) IMU(AboveNormal/占位) Watchdog(High7/占位)</text>
+
+  /* ═══════════════════════════════════════════ */
+  /* LEGEND */
+  /* ═══════════════════════════════════════════ */
+  <rect x="820" y="1000" width="460" height="65" rx="6" fill="#0f172a"/>
+  <rect x="820" y="1000" width="460" height="65" rx="6" fill="rgba(30,41,59,0.3)" stroke="#475569" stroke-width="1"/>
+
+  <!-- Color dots -->
+  <circle cx="840" cy="1020" r="5" fill="#22d3ee"/>
+  <text x="852" y="1023" fill="white" font-size="9">传感器采集</text>
+  <circle cx="930" cy="1020" r="5" fill="#34d399"/>
+  <text x="942" y="1023" fill="white" font-size="9">控制算法</text>
+  <circle cx="1020" cy="1020" r="5" fill="#fb923c"/>
+  <text x="1032" y="1023" fill="white" font-size="9">CAN/执行</text>
+  <circle cx="1115" cy="1020" r="5" fill="#a78bfa"/>
+  <text x="1127" y="1023" fill="white" font-size="9">监控/调试</text>
+  <circle cx="840" cy="1045" r="5" fill="#fbbf24"/>
+  <text x="852" y="1048" fill="white" font-size="9">视觉/位姿</text>
+  <circle cx="930" cy="1045" r="5" fill="#fb7185"/>
+  <text x="942" y="1048" fill="white" font-size="9">安全保护</text>
+  <circle cx="1020" cy="1045" r="5" fill="#60a5fa"/>
+  <text x="1032" y="1048" fill="white" font-size="9">性能/时延</text>
+
+  <!-- Driver init note -->
+  <text x="560" y="720" fill="#94a3b8" font-size="8">启动时驱动器初始化: CAN_Init → RPDO1_Config → Profile_Velocity_Init → NMT_Control → Driver_Enable(0x06→0x07→0x0F) → CPG_Init</text>
+
+  <!-- Force data note -->
+  <text x="54" y="580" fill="#64748b" font-size="7.5">响应帧 29字节: Byte[3..6]把手1Fx ... Byte[23..26]把手2Fz (IEEE754 Big-Endian)</text>
+  <text x="54" y="593" fill="#64748b" font-size="7.5">查询帧 8字节: 0x01 0x03 0x0400 0x000C CRC16  →  USART2 PD4 DE(高=发) PD5/PD6 TX/RX</text>
+</svg>

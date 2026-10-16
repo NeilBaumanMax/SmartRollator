@@ -135,3 +135,21 @@
 - Failures：本轮验证首次执行全部通过，无修复重测项。
 - Firmware Validation：Not run；只验证工程文件与路径完整性，不代表编译、烧录或实机通过；不推进 P1.03。
 - Backup：远端 `backup/workspace-before-files-20261016` 已核对为 `4f5af0a6059f3061b00c421e75340eca4bf92257`。本轮整理在 `build/phase-1-bootstrap` 形成独立可回滚提交。
+
+## 2026-10-16 — 补入另一工作区独有参考资产开工
+
+- Objective：筛选另一工作区独有且有用的资产，复制到 Files 的分类目录；原工作区只读保留。
+- Scope：硬件手册、Hopf 文档、历史架构/接口/数据流文档及图表、串口/调试工具、单元与 HITL 测试模板、GCC Makefile 模板；不覆盖现有文件。
+- Repository：`build/phase-1-bootstrap`，起点 `1d79da55aa25c312103c8c84f9c74c8516df0c39`，远端同哈希；仅已有 `Files/research/` 未跟踪。
+- Backup：复制前建立并核对远端 `backup/before-reference-import-20261016`，指向开工提交。
+- Tests：来源/目标 SHA-256 一致、原工程及既有资产不变、无重复内容导入、Python/shell 语法、DOCX/PDF/SVG 结构和导航链接检查、精确暂存及远端哈希。
+- Exclusions：不改 STM32 工程，不修建 GCC 构建链，不运行串口、烧录、调试或硬件测试；不安装依赖，不将模板认定为可用正式工具；不提交已有未跟踪研究笔记。
+- Rollback：可对本次单一资产导入提交执行 revert；源目录保持不变。
+
+## 2026-10-16 — 独有参考资产补入验证结论
+
+- Delivered：23 份独有原文件按字节复制：2 份硬件 PDF、1 份 Hopf DOCX、5 份历史 Markdown、5 份 SVG、2 份图示文本、1 份 HTML 导出、3 份工具脚本、3 份测试模板和 1 份 GCC Makefile 模板。
+- Layout：`Files/hardware/` 保存手册；`Files/Hopf 振荡器.docx` 保存报告；其余放 `Files/legacy-workspace/`，附 README 与来源相对路径/SHA-256 清单。
+- Validation：23 份来源未改、复制哈希一致、无与现有资产重复内容；既有工程和资产保持原样；2 个 Python、2 个 shell 语法通过；5 个 SVG XML、DOCX ZIP/XML 和 2 个 PDF 头尾结构检查通过；72 个 Markdown 本地链接通过。
+- Limitations：未编译 C 测试，不执行模板、串口、烧录、调试或硬件测试；不将资料说明作为当前硬件/固件通过证据；Phase 1 仍为 Partially complete。
+- Backup：远端 `backup/before-reference-import-20261016` 已核对为 `1d79da55aa25c312103c8c84f9c74c8516df0c39`。

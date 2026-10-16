@@ -15,6 +15,12 @@
 | `tools/` | 五个文档生成 Python 脚本和字体配置 |
 | `research/`（本地） | 整理前未跟踪的研究笔记；保留未提交状态，不属于本次提交内容 |
 
+## 从另一工作区补入的资料
+
+- [硬件手册](hardware/README.md)：力传感器采集器、DM-MC-Board02 电机开发板 PDF。
+- [Hopf 振荡器文档](<Hopf 振荡器.docx>)：另一工作区独有的 Word 文档。
+- [历史开发资料与工具模板](legacy-workspace/README.md)：架构/接口/数据流、SVG 图示、串口及调试脚本、单元/HITL 测试和 GCC 构建模板；目录内标明适配缺口。
+
 ## 路径迁移
 
 - 根目录 DOCX、HTML → `Files/` 下同名文件。

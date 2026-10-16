@@ -8,6 +8,8 @@ SmartRollator 已在正式当前仓库完成 docs-first 施工体系、完整工
 
 2026-10-16 已完成工作区参考材料整理与静态完整性检查：Word、HTML、配图、文档生成器统一在 `Files/`，工程目录和文件内容保持原样；详细路径见 `Files/README.md`。本轮未重新探测工具安装状态，以上环境缺失结论来自 2026-08-07；固件构建仍未建立。
 
+2026-10-16 另补入另一工作区的 23 份独有参考资产，目录入口为 `Files/legacy-workspace/README.md`、`Files/hardware/README.md` 与 `Files/README.md`。旧工具、测试和 GCC Makefile 作为待适配模板保存，未接入正式构建；来源与目标哈希一致，STM32 工程未改动。
+
 ## Completed
 
 - 产品范围、V1 非目标和成功标准已冻结。

@@ -210,3 +210,26 @@ P1.02 完成不表示工具链完整。由于脚本真实返回 INCOMPLETE，P1.
 ### Rollback / Git Delivery
 
 回滚基线为远端 `backup/workspace-before-files-20261016` 的 `4f5af0a6059f3061b00c421e75340eca4bf92257`。本次精确暂存已跟踪资产的旧新路径和治理文档，不包含研究笔记及预览缓存；提交后推送当前阶段分支并核对远端 HEAD。历史 `reference_manifest.sha256` 不改写，其路径仍对应只读归档分支。
+
+## 2026-10-16 — 补入另一工作区独有参考资产
+
+### Plan / Changes
+
+按用户要求筛选另一工作区独有且有用文件，先在 `1d79da5` 建立并核对远端 `backup/before-reference-import-20261016`。新增 23 份原始文件，按 hardware、历史 docs/archive、tools、tests 分类进入 Files；附来源相对路径与 SHA-256 清单。源目录只读，未覆盖当前任何工程文件。已有重复资产、仅带旧个人路径的生成器、重复且未适配的外层 README/.gitignore 不导入。
+
+### Compatibility Review
+
+旧文档/单测/Makefile 使用尚不存在的 firmware/App 布局；flash.sh 的 ST-Link 探测依赖串口名称；debug.sh 的 GDB_PORT 未配置到 OpenOCD；HITL 判定覆盖未完整。作为待适配模板保存，不放入正式 tools/Tests 或根 Makefile。mermaid.html 是 Cocoa 导出的转义源码，未宣称交互页面可用。两份手册的实物适用性仍待核对。
+
+### Verification
+
+- Python SHA-256：23 份源文件未变、目标内容一致，与现有资产无内容重复；既有 STM32 工程、研究笔记和其他资产未变。
+- Python AST/compile：2 个 Python 脚本语法 Passed；`bash -n`：2 个 shell 脚本语法 Passed。未执行脚本。
+- 5 个 SVG XML、1 个 DOCX ZIP/XML、2 个 PDF 文件头/结束标记结构检查 Passed；未重新渲染文档。
+- Markdown 本地链接：72 项 Passed。
+- `git diff --check`：Passed。首轮上述检查均通过，无修复复测。
+- C 单元测试编译、GCC/Keil 构建、CubeMX 生成、串口、烧录、调试、HITL/台架：Not run。
+
+### Delivery / Rollback
+
+精确暂存新增资产、导航及施工记录，不包含 `Files/research/`。本轮单一提交在当前 `build/phase-1-bootstrap` 分支交付，提交后推送并核对远端哈希。回滚父提交 `1d79da55aa25c312103c8c84f9c74c8516df0c39`；不推进 Phase 1 工程验收。

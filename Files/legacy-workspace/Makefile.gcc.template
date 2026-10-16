@@ -1,0 +1,163 @@
+# SmartRollator Makefile
+# 工具链: arm-none-eabi-gcc
+# 目标: STM32H723VGTx
+
+# ===========================
+# 项目配置
+# ===========================
+TARGET   := SmartRollator
+MCU      := STM32H723VGTx
+CPU      := cortex-m7
+FPU      := fpv5-sp-d16
+FLOAT_ABI:= hard
+
+# ===========================
+# 工具链
+# ===========================
+PREFIX   := arm-none-eabi-
+CC       := $(PREFIX)gcc
+CXX      := $(PREFIX)g++
+AS       := $(PREFIX)gcc
+LD       := $(PREFIX)gcc
+OBJCOPY  := $(PREFIX)objcopy
+OBJDUMP  := $(PREFIX)objdump
+SIZE     := $(PREFIX)size
+GDB      := $(PREFIX)gdb
+
+# ===========================
+# 目录
+# ===========================
+FIRMWARE_DIR := firmware
+BUILD_DIR    := build
+
+# Core
+CORE_DIR     := $(FIRMWARE_DIR)/Core
+CORE_SRC     := $(wildcard $(CORE_DIR)/Src/*.c)
+CORE_INC     := $(CORE_DIR)/Inc
+
+# App (用户代码)
+APP_DIR      := $(FIRMWARE_DIR)/App
+APP_SRC      := $(wildcard $(APP_DIR)/*.c)
+APP_INC      := $(APP_DIR)
+
+# Drivers
+DRIVERS_DIR  := $(FIRMWARE_DIR)/Drivers
+HAL_DIR      := $(DRIVERS_DIR)/STM32H7xx_HAL_Driver
+HAL_SRC      := $(wildcard $(HAL_DIR)/Src/*.c)
+HAL_INC      := $(HAL_DIR)/Inc
+CMSIS_DIR    := $(DRIVERS_DIR)/CMSIS
+CMSIS_INC    := $(CMSIS_DIR)/Include $(CMSIS_DIR)/Device/ST/STM32H7xx/Include
+
+# Middlewares (FreeRTOS)
+FREERTOS_DIR := $(FIRMWARE_DIR)/Middlewares/Third_Party/FreeRTOS/Source
+FREERTOS_SRC := $(wildcard $(FREERTOS_DIR)/*.c)
+FREERTOS_SRC += $(FREERTOS_DIR)/portable/MemMang/heap_4.c
+FREERTOS_SRC += $(FREERTOS_DIR)/portable/GCC/ARM_CM7/r0p1/port.c
+FREERTOS_SRC += $(FREERTOS_DIR)/CMSIS_RTOS_V2/cmsis_os2.c
+FREERTOS_INC := $(FREERTOS_DIR)/include
+FREERTOS_INC += $(FREERTOS_DIR)/portable/GCC/ARM_CM7/r0p1
+FREERTOS_INC += $(FREERTOS_DIR)/CMSIS_RTOS_V2
+
+# ===========================
+# 源文件合并
+# ===========================
+SRCS := $(CORE_SRC) $(APP_SRC) $(HAL_SRC) $(FREERTOS_SRC)
+
+# 启动文件
+STARTUP_SRC := $(shell find $(CMSIS_DIR) -name "startup_stm32h723xx.s" 2>/dev/null | head -1)
+
+OBJS := $(SRCS:%.c=$(BUILD_DIR)/%.o)
+OBJS += $(STARTUP_SRC:%.s=$(BUILD_DIR)/%.o)
+
+# ===========================
+# 包含路径
+# ===========================
+INCLUDES := $(CORE_INC) $(APP_INC) $(HAL_INC) $(CMSIS_INC) $(FREERTOS_INC)
+INCLUDES += $(CMSIS_DIR)/Device/ST/STM32H7xx
+INCLUDE_FLAGS := $(addprefix -I, $(INCLUDES))
+
+# ===========================
+# 编译标志
+# ===========================
+DEFINES := -DSTM32H723xx -DUSE_HAL_DRIVER
+
+CFLAGS  := -mcpu=$(CPU) -mthumb -mfpu=$(FPU) -mfloat-abi=$(FLOAT_ABI)
+CFLAGS  += -std=gnu11 -Wall -Wextra -Werror
+CFLAGS  += -Os -g3 -ffunction-sections -fdata-sections
+CFLAGS  += $(DEFINES) $(INCLUDE_FLAGS)
+
+ASFLAGS := -mcpu=$(CPU) -mthumb -mfpu=$(FPU) -mfloat-abi=$(FLOAT_ABI)
+ASFLAGS += -g3 $(DEFINES) $(INCLUDE_FLAGS)
+
+LDFLAGS := -mcpu=$(CPU) -mthumb -mfpu=$(FPU) -mfloat-abi=$(FLOAT_ABI)
+LDFLAGS += -specs=nosys.specs -specs=nano.specs
+LDFLAGS += -Wl,--gc-sections -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
+LDFLAGS += -T $(LDSCRIPT)
+
+# 链接脚本路径 (需根据实际调整)
+LDSCRIPT := $(shell find $(CMSIS_DIR) -name "STM32H723VGTx_FLASH.ld" 2>/dev/null | head -1)
+
+# ===========================
+# 烧录/调试配置
+# ===========================
+OPENOCD_CFG := interface/stlink.cfg -f target/stm32h7x.cfg
+SERIAL_PORT := /dev/tty.usbmodem*
+
+# ===========================
+# 目标
+# ===========================
+.PHONY: all clean flash debug size
+
+all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR)/$(TARGET).hex size
+
+# 编译 C 文件
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# 编译汇编文件
+$(BUILD_DIR)/%.o: %.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+# 链接
+$(BUILD_DIR)/$(TARGET).elf: $(OBJS)
+	@mkdir -p $(BUILD_DIR)
+	$(LD) $(LDFLAGS) $^ -o $@
+
+# 生成 bin/hex
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
+	$(OBJCOPY) -O binary $< $@
+
+$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
+	$(OBJCOPY) -O ihex $< $@
+
+# 大小统计
+size: $(BUILD_DIR)/$(TARGET).elf
+	$(SIZE) $<
+
+# 烧录
+flash: $(BUILD_DIR)/$(TARGET).elf
+	openocd -f $(OPENOCD_CFG) -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+
+# GDB 调试
+debug: $(BUILD_DIR)/$(TARGET).elf
+	openocd -f $(OPENOCD_CFG) &
+	$(GDB) -ex "target extended-remote localhost:3333" \
+	       -ex "monitor reset halt" \
+	       -ex "load" \
+	       $(BUILD_DIR)/$(TARGET).elf
+
+# 清理
+clean:
+	rm -rf $(BUILD_DIR)
+
+# 帮助
+help:
+	@echo "Targets:"
+	@echo "  all     - 编译 (elf + bin + hex)"
+	@echo "  flash   - 烧录 (OpenOCD + ST-Link)"
+	@echo "  debug   - GDB 调试"
+	@echo "  clean   - 清理编译产物"
+	@echo "  size    - 段大小统计"
+	@echo "  help    - 本帮助"

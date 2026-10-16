@@ -34,6 +34,7 @@
 
 ## 历史与参考材料
 
+- [补入的历史开发资料与工具模板](../Files/legacy-workspace/README.md)：只作参考，未接入正式构建或测试。
 - [Files 参考材料目录](../Files/README.md)：Word、HTML、配图和生成脚本；与 STM32 工程分开存放。
 
 - [既有项目交接](handover/PROJECT_HANDOVER.md)：用于理解现有参考固件；其中独立目录方案已被 ADR-007 取代，不代表当前验证状态。

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="zh-CN"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;智能助行器 STM32H7 系统控制流图&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- 引入 Tailwind CSS 美化页面 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 md:p-8 font-sans"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="w-full max-w-6xl bg-white p-6 md:p-10 rounded-2xl shadow-xl overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl font-bold text-gray-800 mb-3"&gt;智能助行器 STM32H7 控制系统架构图&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-500 max-w-2xl mx-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>本图直观展示了基于 FreeRTOS 的系统软件架构，涵盖底层硬件初始化、高频力传感器采集、核心 CPG 变导纳控制解算，以及防偏航的电机同步驱动数据流。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Mermaid 图表容器 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mermaid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>flowchart TD</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 系统初始化模块</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>A["main()"] --&gt; B["HAL_Init / SystemClock_Config"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>B --&gt; C["MX_GPIO / FDCAN1 / FDCAN2 / USART2 / USART1"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>C --&gt; D["osKernelInitialize"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>D --&gt; E["MX_FREERTOS_Init"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>E --&gt; F["创建队列 / Mutex / EventFlags / Tasks"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>F --&gt; G["osKernelStart"]</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 力传感器数据采集任务</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>subgraph Task_ForceSensor [紫色: ForceSensorTask]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>FS["ForceSensorTask"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>FS --&gt; FS1["USART2 RS485 发送查询帧"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>FS1 --&gt; FS2["接收 29 字节力数据"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>FS2 --&gt; FS3["processForceData()"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>FS3 --&gt; FQ[("ForceQueue 队列")]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>G --&gt; FS</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 核心控制与算法任务 (1ms 周期)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>subgraph Task_Control [蓝色: ControlTask 1ms]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CT["ControlTask"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CT --&gt; C0["CAN_Init / RPDO1_Config / Driver_Enable"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>C0 --&gt; C1["CPG_Init(&amp;my_cpg)"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CT --&gt; C2["读取 ForceQueue 最新力"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>C2 --&gt; C3["新鲜度检查"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>C3 --&gt; CR["Controller_Run()"]</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>%% CPG 与导纳核心算法</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CR --&gt; CPG["CPG_Step(&amp;my_cpg, F_x, 0.001f)"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CPG --&gt; ADM["Hopf 振荡器 + 动态阻尼 + 导纳积分"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ADM --&gt; VC["v_cmd (m/s)"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>VC --&gt; RPM["线速度换算转速 (rpm)"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>RPM --&gt; MQ[("MotorCmdQueue 队列")]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>G --&gt; CT</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 电机驱动发送任务</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>subgraph Task_MotorTx [绿色: MotorTxTask]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>MT["MotorTxTask"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>MT --&gt; SYNC["基于同一个 rpm 生成左右轮同步命令"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>SYNC --&gt; CAN["ZLAC_SetVelocity_rpm()"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>CAN --&gt; DRV["FDCAN1 -&gt; ZLAC8015D 驱动器"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>DRV --&gt; MOTOR((左右轮毂电机))</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>G --&gt; MT</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>MQ --&gt; MT</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 日志与视觉位姿解析任务</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>subgraph Task_Log [灰色: Log_task]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>LOG["Log_task"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>LOG --&gt; U1["USART1 接收"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>U1 --&gt; VISION["$ARUCO 视觉位姿帧解析"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>U1 --&gt; CMD["h/t/p 日志命令"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>G --&gt; LOG</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 动捕接口 (虚线表示后续接入)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>subgraph Mocap_Interface [虚线: 动捕高层接口预留]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>MOCAP["后续动捕步频串口"] -.-&gt; MF["解析 0xAA 0xBB + float Hz"]</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>MF -.-&gt; UF["CPG_Update_Frequency()"]</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>UF -.-&gt; CPG</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>%% 样式美化指令</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style Task_Control fill:#e6f7ff,stroke:#1890ff,stroke-width:2px,rx:10,ry:10</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style Task_ForceSensor fill:#f9f0ff,stroke:#722ed1,stroke-width:2px,rx:10,ry:10</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style Task_MotorTx fill:#f6ffed,stroke:#52c41a,stroke-width:2px,rx:10,ry:10</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style Task_Log fill:#fafafa,stroke:#d9d9d9,stroke-width:2px,rx:10,ry:10</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style Mocap_Interface fill:#fffbe6,stroke:#faad14,stroke-width:2px,stroke-dasharray: 5 5,rx:10,ry:10</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style CPG fill:#ffe58f,stroke:#fa8c16,stroke-width:2px</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style MQ fill:#ffccc7,stroke:#f5222d</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>style FQ fill:#ffccc7,stroke:#f5222d</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mt-10 border-t pt-6 text-sm text-gray-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;&lt;strong&gt;图例说明：&lt;/strong&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;ul class="list-disc pl-5 mt-2 space-y-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;li&gt;&lt;span class="inline-block w-3 h-3 bg-[#e6f7ff] border border-[#1890ff] mr-2"&gt;&lt;/span&gt; 蓝色区域：1ms 硬实时核心算法任务 (ControlTask)。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;li&gt;&lt;span class="inline-block w-3 h-3 bg-[#f9f0ff] border border-[#722ed1] mr-2"&gt;&lt;/span&gt; 紫色区域：力传感器高频轮询任务，保证动力学数据低延迟。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;li&gt;&lt;span class="inline-block w-3 h-3 bg-[#f6ffed] border border-[#52c41a] mr-2"&gt;&lt;/span&gt; 绿色区域：驱动下发任务，严格保证左右轮速度命令一致，避免偏航。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;li&gt;&lt;span class="inline-block w-3 h-3 bg-[#ffe58f] border border-[#fa8c16] mr-2"&gt;&lt;/span&gt; 橙色高亮：本次工程的核心创新点（CPG 控制算法块）。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;li&gt;&lt;span class="inline-block w-3 h-3 bg-[#ffccc7] border border-[#f5222d] mr-2"&gt;&lt;/span&gt; 红色数据：FreeRTOS 任务间通讯队列。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- 引入 Mermaid.js --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>mermaid.initialize({<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>startOnLoad: true,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>theme: 'default',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>securityLevel: 'loose',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fontFamily: 'sans-serif'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
