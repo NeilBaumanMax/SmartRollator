@@ -1,6 +1,6 @@
 # 当前工作区目录地图
 
-核对日期：2026-10-16。当前目录为 `git rev-parse --show-toplevel` 返回的正式仓库根目录。当前施工分支是 `main`，已纳入原阶段分支的工具链入口及资料整理状态；按用户指令在 main 继续开发，切换分支后仍须重新盘点。
+核对日期：2026-10-17。当前目录为 `git rev-parse --show-toplevel` 返回的正式仓库根目录。当前施工分支是 `main`，已纳入原阶段分支的工具链入口及资料整理状态；按用户指令在 main 继续开发，切换分支后仍须重新盘点。
 
 ## 已存在的工程与工具
 
@@ -26,13 +26,14 @@
 | `docs/product/` | 产品范围与非目标 |
 | `docs/verification/` | 工具链证据及构建记录规范；记录日期与测试边界 |
 | `docs/handover/` | 旧交接 Markdown，仅历史参考 |
-| `Files/` | 保留的 DOCX、两份 HTML 演示、[全量参考资产索引](../Files/ASSET_INDEX.md) |
+| `Files/` | 保留的 DOCX、HTML 演示、[全量参考资产索引](../Files/ASSET_INDEX.md) |
 | `Files/generated_docs/`、`Files/diagrams/` | 专题报告、配图及原始预览缓存；均纳入备份 |
 | `Files/tools/` | 文档生成器与字体配置；不属于固件工具链 |
 | `Files/hardware/` | 设备手册；实物型号/协议适用性待核实 |
 | `Files/handover/` | 旧交接 Word，未同步当前施工状态 |
 | `Files/legacy-workspace/` | 补入的旧架构/接口/图示、串口/调试工具、C/HITL 测试及 GCC 模板；[适配缺口](../Files/legacy-workspace/README.md) |
-| `Files/research/` | 已跟踪研究笔记 FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md；随 GitHub 备份提供 |
+| `Files/research/` | [当前步态相位/PBO 基线](../Files/research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md)及历史力耦合笔记；区分当前方向与备选路线 |
+| `Files/start_researching/` | 网页 ChatGPT 讨论原始资料：导师稿、PNG/SVG/Mermaid、ZIP、两份历史 HTML 及本次接手提示词；[说明](../Files/start_researching/README.md) |
 | `Files/local-state/` | 上层目录原始 Finder 元数据及说明 |
 | `reference_manifest.sha256` | 只读历史参考归档清单，原路径仅对归档版本有效 |
 

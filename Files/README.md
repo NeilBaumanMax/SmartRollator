@@ -8,14 +8,15 @@
 
 | 位置 | 内容 |
 |---|---|
-| DOCX（共 6 份） | 应用说明保留 LaTeX 版；参数详解保留 generated_docs 内新版；另保留基础说明、组会讲稿、极限环专题与历史交接 |
+| DOCX（共 7 份） | 原 6 份 Hopf/交接资料及 sdk.docx（SDK/VRPN 参考）；不作为当前验证证据 |
 | [project_logic_map.html](project_logic_map.html) | 工程逻辑展示页 |
 | [hopf_cpg_interactive_demo.html](hopf_cpg_interactive_demo.html) | Hopf 参数与控制链路交互演示 |
 | `generated_docs/` | 生成的参数/极限环报告、配图和本地预览 |
 | `diagrams/` | 研究与实验设计图表 |
 | [handover/SmartRollator项目交接与Git重建指南.docx](handover/SmartRollator项目交接与Git重建指南.docx) | 历史交接 Word 版本 |
 | `tools/` | 五个文档生成 Python 脚本和字体配置 |
-| `research/` | 已纳入 GitHub 全量备份的研究笔记 |
+| `research/` | [当前相位/PBO 研究基线](research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md)与保留原文的历史力耦合路线 |
+| [start_researching/](start_researching/README.md) | 网页讨论原始 17 项资产、接手提示词与归档说明；HTML 仍为历史对称余弦演示 |
 | `local-state/` | 上层目录原始元数据；工作区其他状态文件按原路径备份 |
 
 ## 从另一工作区补入的资料

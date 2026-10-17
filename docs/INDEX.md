@@ -37,6 +37,11 @@
 - [工作日志模板](construction/templates/WORK_LOG_TEMPLATE.md)
 - [测试报告模板](construction/templates/TEST_REPORT_TEMPLATE.md)
 
+## 当前研究讨论
+
+- [个性化基准阻尼与步态相位减阻研究基线](../Files/research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md)：2026-10-17 接手确认的方向、候选公式、代码差距和验证次序；不是实现/硬件通过证据。
+- [网页讨论原始资料](../Files/start_researching/README.md)：原始接手提示词、导师稿/配图/ZIP 与两份历史 HTML；按原字节保存。
+
 ## 历史与参考材料
 
 - [补入的历史开发资料与工具模板](../Files/legacy-workspace/README.md)：只作参考，未接入正式构建或测试。

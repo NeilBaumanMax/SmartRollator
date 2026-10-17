@@ -51,10 +51,30 @@
 | [legacy-workspace/tools/flash.sh](<legacy-workspace/tools/flash.sh>) | sh |
 | [legacy-workspace/tools/monitor.py](<legacy-workspace/tools/monitor.py>) | py |
 | [local-state/README.md](<local-state/README.md>) | md |
-| [local-state/parent-folder.DS_Store](<local-state/parent-folder.DS_Store>) | Finder 元数据 |
+| [local-state/parent-folder.DS_Store](<local-state/parent-folder.DS_Store>) | DS_Store |
 | [project_logic_map.html](<project_logic_map.html>) | html |
 | [research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md](<research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md>) | md |
-| [sdk.docx](<sdk.docx>) | SDK/VRPN 使用参考；本轮新增文件，原字节保留 |
+| [research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md](<research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md>) | 当前研究基线；候选/实现/验证分开记录 |
+| [sdk.docx](<sdk.docx>) | SDK/VRPN 使用参考；原字节保留 |
+| [start_researching/README.md](<start_researching/README.md>) | 本次网页讨论资料说明；区分历史演示与当前基线 |
+| [start_researching/SmartRollator_本地Codex交接提示词_2026-10-17.md](<start_researching/SmartRollator_本地Codex交接提示词_2026-10-17.md>) | md |
+| [start_researching/gait-direct-demo.html](<start_researching/gait-direct-demo.html>) | html |
+| [start_researching/gait-hopf-demo.html](<start_researching/gait-hopf-demo.html>) | html |
+| [start_researching/智能助行车_导师讨论材料/figures/01_control_framework.png](<start_researching/智能助行车_导师讨论材料/figures/01_control_framework.png>) | png |
+| [start_researching/智能助行车_导师讨论材料/figures/01_control_framework.svg](<start_researching/智能助行车_导师讨论材料/figures/01_control_framework.svg>) | svg |
+| [start_researching/智能助行车_导师讨论材料/figures/02_step_and_stride.png](<start_researching/智能助行车_导师讨论材料/figures/02_step_and_stride.png>) | png |
+| [start_researching/智能助行车_导师讨论材料/figures/02_step_and_stride.svg](<start_researching/智能助行车_导师讨论材料/figures/02_step_and_stride.svg>) | svg |
+| [start_researching/智能助行车_导师讨论材料/figures/03_damping_window.png](<start_researching/智能助行车_导师讨论材料/figures/03_damping_window.png>) | png |
+| [start_researching/智能助行车_导师讨论材料/figures/03_damping_window.svg](<start_researching/智能助行车_导师讨论材料/figures/03_damping_window.svg>) | svg |
+| [start_researching/智能助行车_导师讨论材料/figures/04_hopf_phase_to_damping.png](<start_researching/智能助行车_导师讨论材料/figures/04_hopf_phase_to_damping.png>) | png |
+| [start_researching/智能助行车_导师讨论材料/figures/04_hopf_phase_to_damping.svg](<start_researching/智能助行车_导师讨论材料/figures/04_hopf_phase_to_damping.svg>) | svg |
+| [start_researching/智能助行车_导师讨论材料/figures/05_pbo_loop.png](<start_researching/智能助行车_导师讨论材料/figures/05_pbo_loop.png>) | png |
+| [start_researching/智能助行车_导师讨论材料/figures/05_pbo_loop.svg](<start_researching/智能助行车_导师讨论材料/figures/05_pbo_loop.svg>) | svg |
+| [start_researching/智能助行车_导师讨论材料/figures/control_framework.mmd](<start_researching/智能助行车_导师讨论材料/figures/control_framework.mmd>) | mmd |
+| [start_researching/智能助行车_导师讨论材料/figures/pbo_loop.mmd](<start_researching/智能助行车_导师讨论材料/figures/pbo_loop.mmd>) | mmd |
+| [start_researching/智能助行车_导师讨论材料/智能助行车_个性化步态变导纳_导师讨论稿.md](<start_researching/智能助行车_导师讨论材料/智能助行车_个性化步态变导纳_导师讨论稿.md>) | md |
+| [start_researching/智能助行车_导师讨论材料/阅读说明.txt](<start_researching/智能助行车_导师讨论材料/阅读说明.txt>) | txt |
+| [start_researching/智能助行车_导师讨论材料_含配图.zip](<start_researching/智能助行车_导师讨论材料_含配图.zip>) | zip |
 | [tools/build_hopf_parameter_doc.py](<tools/build_hopf_parameter_doc.py>) | py |
 | [tools/build_limit_cycle_doc.py](<tools/build_limit_cycle_doc.py>) | py |
 | [tools/build_project_handover_doc.py](<tools/build_project_handover_doc.py>) | py |

@@ -328,3 +328,43 @@ DOCX 共 9 份，SHA-256 均不同。应用说明三版正文高度一致、主�
 ### 最终复测
 
 补入 sdk.docx 后，Python 路径/哈希/对象核验全部通过：128 个本轮 Markdown 本地链接有效；1672 个 STM32 文件与开工哈希一致；1774 个磁盘普通文件与索引路径集合完全相同，全部索引 blob 与磁盘字节相同；清单覆盖 1773 项，自身由 Git 校验。untracked/ignored 均为 0；`git diff --cached --check` 退出 0。sdk.docx SHA-256 与首次发现时一致；无 Word 内容编辑。追加本结果后刷新清单并再次核对暂存对象，再执行提交推送。
+
+## 2026-10-17 — 思路讨论接手、研究基线对齐与资料保全
+
+### Plan / Repository
+
+按 DEV_PROGRESS 同日“思路讨论接手”计划执行。main/origin/main/ls-remote main 开工一致为 bc08d08ae9040f6e8f6ec1d8f3eb59d7bc0ba697；已核对原备份/reference 恢复点。开工 1774 tracked、17 untracked、0 ignored；既有 .DS_Store 与 Files/.DS_Store 按完整备份授权保留。新目录共 3447856 字节，最大文件 1333325 字节，无大小超限排除。
+
+### Changes / Static Findings
+
+- 原始 17 项（HTML 2、导师材料目录 14、ZIP 1）保留原路径/字节；另归档用户接手提示词，建立 18 行来源/大小/SHA-256 清单。ZIP 与解压内容重复有用途区别，均保留，无删除。
+- 新增 GAIT_PHASE_PBO_ADMITTANCE_BASELINE，记录已确认主线、候选公式、未决问题、对照与阶段边界。旧 FORCE_COUPLED 正文仅插入状态说明；同步导航/资产地图、ADR-010、A-011–A-015、05/06 层级、产品范围澄清与 P9.02 候选说明。
+- 只读核查 torque_sensor.*、cpg_control.*、Controller.*、data_structs.h、user_can.* 与 freertos.c 的调用链：f1 单路入队；解析函数不验 CRC/帧头；εFx 耦合和 D_base−lambda·x；固定 dt/轮半径为旧常量；频率接口无调用；CAN 反馈解析 TODO、MotorFb 队列无生产者；Controller 忽略 imu/fb；启动使能与 MotorTx 安全仲裁缺口仍在。具体文件/函数与证据边界见研究基线第 6 节。未修改固件，不宣称完整安全审计或运行通过。
+- 两份 HTML 源码是跨步角度的对称余弦，不是当前每步局部窗口；只在归档说明标记。Files/README 的 DOCX 数修正为 7，与上一交付一致。
+
+### Verification
+
+以 Python 标准库只读检查：
+
+- SHA-256：原始 17 项、逐字节复制的提示词、1672 个 STM32 文件保全；去除新增状态说明后旧研究正文与开工相同；18 行导入清单的大小/哈希通过。
+- ZIP testzip 返回 None；全部 14 个文件与解压目录内容相同。5 SVG 的 XML 解析、5 PNG 的签名/各 chunk CRC 与文件边界检查通过；没有执行生成器或视觉重排。
+- 54 份 Markdown 中 257 个本地路径链接全部存在；Files 索引覆盖 75 个资产（自身除外）。两份 HTML 解析 href/src，没有外部本地文件依赖；此检查不代表浏览器渲染/交互通过。
+- 原始资料、ZIP 内成员、提示词与新研究摘要的私钥/常见令牌/凭据赋值模式扫描无命中；不以此宣称全面秘密检测。
+- 公式/术语人工静态审阅：固定 M/K=0、D0/A/lambda、步/跨步、窗口连续性、径向收敛与锁相区别、D_raw/D_applied、时间平均阻尼、试次间 PBO、V1 人体范围均分别记录；参数与收益不写作验证事实。
+- git diff --check 退出 0。以上首轮检查通过，没有固件运行失败/修复记录；收尾若发现问题在下节追加。
+
+### Evidence Limits / Delivery
+
+固件生成/编译、正式主机算法测试、烧录、目标板/台架/人体测试及 HTML 浏览器验收均 Not run；相关新固件成功证据仍 Not established。工具链本轮未探测，沿用 2026-10-16 有日期的有限范围证据。导师稿引用文献未联网核验，仅按用户资料归档。Phase 1 仍 Partially complete；05/06 仍 Pending。
+
+最终文档落盘后刷新 files.sha256、逐路径审阅并精确暂存；检查磁盘/索引/清单/blob，普通推送 main 后独立抓取远端完整对象核验。该段记录待执行交付动作，不预填本提交自身哈希或推送成功。下次接续从 git log/status/ls-remote 核对实际交付，遇阻塞则追加失败与下一步。
+
+### 首次暂存空白检查失败与修复
+
+原先 git diff --check 只覆盖已跟踪改动；把原始资产精确暂存后，git diff --cached --check 返回 2，共 31545 条诊断：gait-direct-demo.html 第 27 行和 5 个生成 SVG 的原始行尾空白，以及导师稿末尾空行。此前工具调用的最后一条 stat 命令返回 0，不能据此把中间空白检查误报成功；已单独捕获退出码和逐文件诊断。
+
+用户要求保留原文件，因此不格式化资料。新增 .gitattributes 对 start_researching 禁止换行转换，并仅对上述 HTML/SVG 关闭 blank-at-eol、导师稿关闭 blank-at-eof；其他新施工文字仍按默认规则检查。原字节/哈希、SVG/PNG/ZIP 结构核验继续保留。更新全量清单后复测暂存检查及全部对象，结果追加于下节。
+
+### 暂存复测与完整覆盖
+
+窄范围属性修正后，git diff --cached --check 退出 0。Python 逐项比较 1795 个磁盘普通文件与 Git 索引路径/全部 blob 字节一致；files.sha256 覆盖 1794 项（清单自身用 Git blob 核验）；41 个本轮路径与审阅清单一致，untracked/ignored 均为 0，未暂存差异为 0。原始 17 项/附件/1672 个工程文件保全检查再次通过。追加此结果后再次刷新清单和核验暂存对象，再提交、推送并核对远端。

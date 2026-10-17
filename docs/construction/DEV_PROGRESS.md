@@ -235,3 +235,28 @@
 - Delivery：本轮完成文档自检，按 WORKFLOW 精确提交并推送 main；最终提交/远端哈希由 Git 实时核对。恢复时先查 HANDOFF 的本轮交付核验，避免把开工哈希当作最终 HEAD。
 
 - 收尾新增输入：开工后出现 Files/sdk.docx；只读确认内容与 ZIP 完整性，按全部备份授权原样纳入，补充 Files 索引/DOCX 记录；当前普通文件 1774、DOCX 7，最终覆盖检查重跑。
+
+## 2026-10-17 — 思路讨论接手与研究资料保全 / 开工计划
+
+- Read Before Work：完整读取用户交接提示词；按 INDEX 读取 AGENTS、开工入口、WORKFLOW、目录地图/Files 索引、总需求/产品/架构/契约、施工计划/当前节点、最新进度/交接/日志、00 基础/05 固定导纳/06 Hopf 层级记录、决策/假设；另读旧研究笔记和新导师讨论稿。
+- Objective：保留 Files/start_researching 的原始讨论资产，核查参考控制链，落盘固定 M → PBO 个性化 D0 → 局部相位减阻 → 直接动捕/Hopf 相位对照的新研究基线；本次不迁移算法。
+- Affected Nodes：P1.01 文档维护与资料备份；05 固定导纳、06 Hopf 的研究方向说明，固件阶段完成度不变。
+- Repository State：main 与 origin/main、ls-remote main 均为 bc08d08ae9040f6e8f6ec1d8f3eb59d7bc0ba697；1774 tracked、17 untracked、0 ignored。已有 .DS_Store 与 Files/.DS_Store 变化按既有全量备份授权保留，新增 17 项全部来自用户指定目录。
+- Planned Files：新增研究基线与原始交接提示词归档、start_researching 说明、逐项大小/SHA-256 导入清单；旧研究笔记仅加状态指向；更新 INDEX、目录地图、Files 索引/说明/版本记录、DEV_PROGRESS/HANDOFF/LOG、DECISIONS/ASSUMPTIONS、05/06 层级、产品范围澄清及施工树 P9.02 候选说明、备份说明/全量哈希。无 C 接口改动。
+- Tests：原始 17 项/提示词哈希；ZIP 完整性及压缩包与解压目录内容对照；SVG XML/PNG 结构、Markdown 与 HTML 本地链接、术语/公式/状态静态审阅；新增文本与归档内容凭据模式检查；全部 STM32 文件保全；diff 空白、磁盘/索引/blob/清单一致性；普通推送 main 并独立抓取远端核验。
+- Recovery：已核对远端 main 开工哈希，以及 backup/before-session-workflow-20261017 → df3da6870a9eebaaf215ac8cfb832cc98d681567、reference/archive-20260807 → a0669d7e36e54e78970e8162b0bc47334221c6c5。回滚可 revert 本轮提交；不改写历史，不覆盖原始资料。
+- Exclusions：不生成/编译/烧录、不使能电机、不开展人体试验、不运行历史脚本或重做 HTML、不重新开展文献有效性核验、不安装/探测工具链；当前环境检测沿用有日期的历史证据，不宣称本轮验证。
+- Git Delivery：先完成检查和文档对齐，再按清单精确暂存、提交与推送；最终哈希及远端状态以实际查询为准。
+
+## 2026-10-17 — 思路讨论接手实施与验证结论
+
+- Delivered：原始 17 项按字节保留，接手提示词逐字节归档；当前研究基线、旧路线状态链接、ADR-010/A-011–A-015、资产索引/地图/版本记录、05/06 层级和 HANDOFF 已对齐。P9.02 不再默认把 Hopf x 映射当作当前研究算法；实施前仍需冻结具体契约。
+- Validation：17 项原资料与附件哈希一致、1672 个 STM32 文件不变、旧研究笔记去除新增状态说明后与开工正文完全一致；18 项导入清单核验通过；ZIP 14 个成员与解压文件一致，5 SVG XML/5 PNG chunk-CRC 通过；54 份 Markdown 的 257 个本地链接存在，Files 索引覆盖 75 项（自身除外）；两份 HTML 无本地 href/src 依赖；新增资料/ZIP/提示词常见凭据模式扫描无命中；git diff --check 退出 0。
+- Static Review：固定 M/K=0、D0 上界而非均值、A 与 lambda 不同、步/跨步换算、Hopf 径向/相位参数和范围、D_raw/D_applied、PBO 试次间与 V1 非人体边界已区分；参考控制链的反馈/使能/超时差距仅登记。
+- Drift：Files/README 原 DOCX 数为 6，按上一交付的 sdk.docx 修正为 7；两份 HTML 对称余弦与新窗口不同，添加说明但不改演示。旧日志保留。
+- Evidence Limits：未联网核验导师稿文献，未做浏览器渲染、固件生成/编译/主机算法测试/烧录/台架或人体实验；工具链本轮未重跑，Phase 1 保持 Partially complete，05/06 保持 Pending。
+- Delivery：本地检查完成后刷新全量清单、精确暂存、普通推送并独立核验远端，实际交付以 Git 查询为准；未生成自身提交哈希前不预填成功。
+
+- 收尾发现：原始 SVG/HTML 行尾空白与导师稿末尾空行触发首次 staged diff 检查；为保全原文，新增 .gitattributes 的窄范围空白检查例外及原始目录换行保全规则。诊断与复测见 LOG，未修改资产字节。
+
+- 暂存复测通过：41 个精确路径，1795 个普通文件与索引/blob 一致，清单 1794 项，untracked/ignored/未暂存差异均为 0，staged diff 检查退出 0；追加记录后再次刷新清单再提交。

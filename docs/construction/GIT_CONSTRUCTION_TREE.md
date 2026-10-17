@@ -194,7 +194,7 @@ bool BootSafety_IsAsserted(void);
 | 节点 | 精确文件 | 文件功能/主要接口 | 最近测试 | 回滚点 |
 |---|---|---|---|---|
 | P9.01 变导纳模块 | 新建 `App/control/variable_admittance.h/.c` | `VariableAdmittance_Init()`, `Reset()`, `ValidateParams()`, `Step()`；输出 `D_current` 和速度 | `Tests/host/test_variable_admittance.c` | Phase 8 tag |
-| P9.02 调制映射 | 新建 `App/control/cpg_modulation.h/.c` | `CpgModulation_ComputeDamping()`；Hopf x 到阻尼，显式上下限 | `Tests/host/test_cpg_modulation.c` | P9.01 |
+| P9.02 调制映射 | 新建 `App/control/cpg_modulation.h/.c` | `CpgModulation_ComputeDamping()` 为旧候选接口名；按 ADR-010，新研究候选为相位到 D0−A·w(ψ)，显式参数/限幅；实施前冻结步/跨步与直接/Hopf 共用契约，旧 x 映射仅作参考 | `Tests/host/test_cpg_modulation.c` | P9.01 |
 | P9.03 策略集成 | 修改 `control_strategy.h/.c` | 增加 VARIABLE_ADMITTANCE；模式切换先复位并受 SafetyState 许可 | `test_control_strategy.c` 切换瞬态 | P9.02 |
 | P9.04 A/B 回放 | 新建 `Tests/host/test_control_ab_replay.c`, `tools/compare_control_modes.py`, `docs/verification/control/fixed-vs-cpg.md` | 同一输入比较固定/变导纳，不选择“更好”替代安全阈值 | 可复现 CSV/指标 | P9.03 |
 | P9.05 台架与收尾 | 新建 `Tests/bench/cpg-integration.md`; 更新 `docs/construction/LOG.md`, `HANDOFF.md`, `DEV_PROGRESS.md`, `progress/layers/06-hopf-cpg.md` | 低速切换、极端输入、失联，保持固定模式可回退 | Phase 9 完整测试 | P9.04 |

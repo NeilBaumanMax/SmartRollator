@@ -9,3 +9,9 @@ MDK-ARM/startup_stm32h723xx.lst binary
 Files/local-state/parent-folder.DS_Store binary
 # Preserve the original Markdown hard line breaks in the imported research note.
 Files/research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md whitespace=-blank-at-eol
+# Preserve imported web-discussion assets exactly, including original line endings.
+Files/start_researching/** -text
+# Original generator whitespace is part of the archived source, not new edits.
+Files/start_researching/gait-direct-demo.html whitespace=-blank-at-eol
+Files/start_researching/智能助行车_导师讨论材料/figures/*.svg whitespace=-blank-at-eol
+Files/start_researching/智能助行车_导师讨论材料/智能助行车_个性化步态变导纳_导师讨论稿.md whitespace=-blank-at-eof
