@@ -368,3 +368,15 @@ DOCX 共 9 份，SHA-256 均不同。应用说明三版正文高度一致、主�
 ### 暂存复测与完整覆盖
 
 窄范围属性修正后，git diff --cached --check 退出 0。Python 逐项比较 1795 个磁盘普通文件与 Git 索引路径/全部 blob 字节一致；files.sha256 覆盖 1794 项（清单自身用 Git blob 核验）；41 个本轮路径与审阅清单一致，untracked/ignored 均为 0，未暂存差异为 0。原始 17 项/附件/1672 个工程文件保全检查再次通过。追加此结果后再次刷新清单和核验暂存对象，再提交、推送并核对远端。
+
+### 已推送主提交与远端复核调整
+
+研究资料主提交 36a9b707f08548624181d99412822bffe26db6ac 已推送，HEAD/origin/main/ls-remote main 三者一致，推送当时工作树干净。独立全量浅抓取旧二进制较慢，主动终止本任务 fetch，退出 143，输出 `fetch-pack: unexpected disconnect while reading sideband packet` / `fatal: early EOF`；这是主动终止的验证下载，不是推送失败，未影响远端。
+
+随后在独立临时 bare 仓库执行 `git fetch --depth=1 --filter=blob:none` 获取远端提交与完整文件树，退出 0。远端提交及根树与本地 HEAD 一致。第一次与最新磁盘路径集合比较失败（AssertionError）：新增 Files/start_researching/.DS_Store；git status 同时显示根 .DS_Store 已改写。两项为首个提交后新产生/变化的 Finder 状态，原始资料未丢失；按 DEV_PROGRESS 的补备份计划纳入索引/清单并补交。
+
+远端最终验证采用内容寻址：从独立远端树读取每个路径的 blob ID，用磁盘字节计算 `SHA1("blob " + byte_length + NUL + bytes)` 逐项比较；同时核对本地 Git blob 原字节、SHA-256 清单、路径集合及工作树状态。这核验远端提交中的完整文件内容身份，不重复下载全部 blob 正文。前文完整对象下载计划由本段更新，不将中止的抓取写作通过。
+
+### Finder 补备份复测
+
+补入元数据后，258 个 Markdown 本地链接与 76 项 Files 索引通过；17 项原始资料、提示词及 1672 个工程文件仍保持原字节。8 个补交路径已精确盘点，1796 个普通文件与索引路径及 blob 原字节一致，清单覆盖 1795 项；untracked/ignored/未暂存差异均为 0，staged diff 空白检查退出 0。追加本结果后刷新清单并复核，再补交推送及远端树逐文件哈希验证；最终交付状态以实际 Git 查询为准。

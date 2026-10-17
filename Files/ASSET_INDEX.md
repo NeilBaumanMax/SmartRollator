@@ -56,6 +56,7 @@
 | [research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md](<research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md>) | md |
 | [research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md](<research/GAIT_PHASE_PBO_ADMITTANCE_BASELINE.md>) | 当前研究基线；候选/实现/验证分开记录 |
 | [sdk.docx](<sdk.docx>) | SDK/VRPN 使用参考；原字节保留 |
+| [start_researching/.DS_Store](<start_researching/.DS_Store>) | Finder 元数据；远端核验期间新产生 |
 | [start_researching/README.md](<start_researching/README.md>) | 本次网页讨论资料说明；区分历史演示与当前基线 |
 | [start_researching/SmartRollator_本地Codex交接提示词_2026-10-17.md](<start_researching/SmartRollator_本地Codex交接提示词_2026-10-17.md>) | md |
 | [start_researching/gait-direct-demo.html](<start_researching/gait-direct-demo.html>) | html |

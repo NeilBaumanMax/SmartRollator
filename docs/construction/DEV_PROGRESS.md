@@ -260,3 +260,12 @@
 - 收尾发现：原始 SVG/HTML 行尾空白与导师稿末尾空行触发首次 staged diff 检查；为保全原文，新增 .gitattributes 的窄范围空白检查例外及原始目录换行保全规则。诊断与复测见 LOG，未修改资产字节。
 
 - 暂存复测通过：41 个精确路径，1795 个普通文件与索引/blob 一致，清单 1794 项，untracked/ignored/未暂存差异均为 0，staged diff 检查退出 0；追加记录后再次刷新清单再提交。
+
+## 2026-10-17 — 推送后远端核验与 Finder 状态补备份 / 计划
+
+- Baseline：研究资料提交 36a9b707f08548624181d99412822bffe26db6ac 已普通推送，本地 HEAD、origin/main 与 ls-remote main 相同；不再将 bc08d08 视为最新交付。
+- Scope：独立远端核验时发现根 .DS_Store 再次变化，并新出现 Files/start_researching/.DS_Store；按既有全量备份约定保留，补入资产索引、清单、日志和交接，不改原始研究资料。
+- Verification Adjustment：全量独立抓取包含大量旧二进制，下载缓慢，主动终止本任务的冗余下载；改为独立抓取远端 commit/完整树（blob:none），逐文件比较远端 blob ID 与本地原字节按 Git 格式计算的 SHA-1，结合既有本地 blob 与 SHA-256 清单验证。此方式不宣称重新下载了全部远端 blob 内容。
+- Tests：更新后磁盘/索引/清单核对，原始资产保全，远端树/逐文件 blob ID、untracked/ignored；精确补交与普通推送。回滚为 revert 本补交；不修改固件，不清理未知文件。
+
+- 补备份检查结论：8 个精确路径，1796 个普通文件与索引/blob 一致，1795 项 SHA-256 清单；258 本地链接/76 资产条目有效，原始资料与固件不变；untracked/ignored/未暂存差异为 0。阶段完成度不变，补交后再核验远端。

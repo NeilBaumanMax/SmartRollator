@@ -36,8 +36,14 @@
 - 本轮开工及上一已核实交付：bc08d08ae9040f6e8f6ec1d8f3eb59d7bc0ba697，本地 main、origin/main 和 ls-remote main 一致。
 - 已核对远端恢复点：backup/before-session-workflow-20261017 → df3da6870a9eebaaf215ac8cfb832cc98d681567；backup/before-complete-workspace-20261016 → 6a5aaf7087cbc1b2267ba4b048193a0482a4f23c；reference/archive-20260807 → a0669d7e36e54e78970e8162b0bc47334221c6c5。旧分支不删除，不重写历史。
 - 开工 1774 tracked、17 untracked、0 ignored；两项既有 Finder 元数据变化按原全量授权纳入本次快照。原资料 17 项共 3447856 字节，连同提示词的 18 项来源/大小/哈希见[导入清单](../verification/workspace-backup/start-researching-20261017.tsv)。
-- 本轮最终文档、资料与 [files.sha256](../verification/workspace-backup/files.sha256) 精确暂存后普通推送 main，再独立抓取远端核验；不得预写推送成功。最终查询 `git log -1`、`git status --short --branch`、`git ls-remote origin refs/heads/main`。开工哈希不是最终 HEAD；下一次接续补记实际交付。
+- 本轮最终文档、资料与 [files.sha256](../verification/workspace-backup/files.sha256) 精确暂存后普通推送 main，再独立抓取远端核验；不得预写推送成功。远端复核改为独立获取 commit/完整树并逐文件校验 blob ID 与本地原字节哈希，不重复下载旧二进制。最终查询 `git log -1`、`git status --short --branch`、`git ls-remote origin refs/heads/main`。开工哈希不是最终 HEAD；下一次接续补记实际交付。
 - 回滚使用本轮提交的 revert 或从已核实恢复点新建分支；不 reset/clean/强推。
+
+## 推送后补交状态
+
+- 研究资料主提交 36a9b707f08548624181d99412822bffe26db6ac 已推送并核对 HEAD/origin/main/远端 main 一致。
+- 之后 Finder 改写根 .DS_Store，并新增 Files/start_researching/.DS_Store，导致远端树与最新磁盘首次覆盖断言失败；按全量备份约定补入资产索引、清单和本轮后续提交。原始 17 项不变，原始导入清单不追改。
+- 最终远端验证使用独立 blob:none 抓取的提交/树与每个本地文件的 Git blob 哈希比较，配合本地索引原字节/SHA-256 验证；中止的完整二进制下载不作为通过证据，详见 LOG。补备份复测：1796 个普通文件/索引 blob、1795 项清单、258 本地链接和 76 项资产导航通过，未跟踪/忽略项为 0。最终补交哈希仍以实时 Git 查询为准。
 
 ## Next Tasks
 
