@@ -211,3 +211,27 @@
 - 所有源代码和既有资料按原始字节保留，不生成或验证新固件；Phase 1 仍为 Partially complete。
 
 - 原始全量快照已形成提交 677c23a，保留研究原文及全部旧状态。其后修复研究笔记 5 处移动前遗留的相对链接，正文不改；原始版本可从快照恢复。
+
+## 2026-10-17 — 每次接续施工闭环 / 开工计划
+
+- Read Before Work：已读 AGENTS、INDEX、开工入口、WORKFLOW、总需求、最新进度/日志/交接、产品/架构/契约、施工计划/当前施工树、L0、目录地图与 Files 索引。
+- Objective：参考 idea-to-production-vibecoding 的 Resume 与施工闭环，将 docs 作为每次恢复工作的持久进度入口，落实先计划、实施、自检、漂移修正、提交和推送。
+- Affected Layers / Nodes：L0 仓库治理与 P1.01 文档维护；不推进 P1.03/P1.05。
+- Repository State：main 与 origin/main 在 fetch 后左右差异为 0/0；开工已有 .DS_Store、Files/.DS_Store 两项 Finder 元数据变动，按此前全部备份授权保留字节并纳入本轮快照。
+- Git Baseline：df3da6870a9eebaaf215ac8cfb832cc98d681567。
+- Backup Branch：backup/before-session-workflow-20261017，已推送并用 ls-remote 核对为开工提交。
+- Planned Files / Interfaces：AGENTS、INDEX、开工入口、WORKFLOW、总需求、测试指标、开工/日志模板、进度/日志/交接/L0、受影响 Git 及产品范围说明、全量清单；无固件接口改动。
+- Tests：文档链接、规则一致性、STM32 与非治理资产 SHA-256 保全、diff 空白、磁盘/索引完整覆盖、清单与 Git 对象字节核对；推送后核对 main 远端哈希。
+- Acceptance Criteria：新 Agent 不读聊天即可找到最新计划、真实完成项、验证边界和下一步；静态审阅可验收普通代码增量，编译/硬件证据不混淆；本轮治理变更提交推送。
+- Rollback Plan：从上述远端备份建恢复分支，或 revert 本轮提交；不覆盖已有改动。
+- Explicit Exclusions：不改固件/工具/参考资产，不安装外部 skill，不生成、编译、烧录或连接硬件；不把 Phase 1 标成完成。
+
+## 2026-10-17 — 接续施工规则实施与检查结论
+
+- Delivered：每次恢复先读 docs、代码前计划落盘、普通 STM32 增量具体静态审阅、失败/修复留痕、文档漂移修正、交接和提交推送闭环，统一至 AGENTS/WORKFLOW 及现有模板。
+- Drift：消除阶段分支强制要求、旧产物禁止备份、静态审阅不能作为任何验收依据的过时表述；不改硬件/构建证据标准。
+- Validation：63 项本轮 Markdown 本地链接、1672 个 STM32 文件 SHA-256 保全、Files 参考资产保全与 diff 空白检查通过；首轮 Finder 元数据变化触发范围断言，说明和复测记录见 LOG。
+- Firmware：未修改；生成/编译/烧录/硬件 Not run，Phase 1 仍为 Partially complete。
+- Delivery：本轮完成文档自检，按 WORKFLOW 精确提交并推送 main；最终提交/远端哈希由 Git 实时核对。恢复时先查 HANDOFF 的本轮交付核验，避免把开工哈希当作最终 HEAD。
+
+- 收尾新增输入：开工后出现 Files/sdk.docx；只读确认内容与 ZIP 完整性，按全部备份授权原样纳入，补充 Files 索引/DOCX 记录；当前普通文件 1774、DOCX 7，最终覆盖检查重跑。

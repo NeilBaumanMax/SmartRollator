@@ -1,6 +1,6 @@
 # Files 参考资产全索引
 
-核对日期：2026-10-16。按用户最新全量备份要求，本表覆盖 Files 中全部普通文件（本索引自身除外），包含研究笔记、预览及元数据。正式施工规则以根 AGENTS/docs 为准；旧模板与构建日志不代表当前验证通过。
+核对日期：2026-10-17。按用户最新全量备份要求，本表覆盖 Files 中全部普通文件（本索引自身除外），包含研究笔记、预览及元数据。正式施工规则以根 AGENTS/docs 为准；旧模板与构建日志不代表当前验证通过。
 
 [目录地图](../docs/WORKSPACE_MAP.md) · [资料说明](README.md) · [DOCX 版本核对](DUPLICATES.md) · [全工作区备份](../docs/verification/workspace-backup/README.md)
 
@@ -54,6 +54,7 @@
 | [local-state/parent-folder.DS_Store](<local-state/parent-folder.DS_Store>) | Finder 元数据 |
 | [project_logic_map.html](<project_logic_map.html>) | html |
 | [research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md](<research/FORCE_COUPLED_HOPF_VARIABLE_ADMITTANCE.md>) | md |
+| [sdk.docx](<sdk.docx>) | SDK/VRPN 使用参考；本轮新增文件，原字节保留 |
 | [tools/build_hopf_parameter_doc.py](<tools/build_hopf_parameter_doc.py>) | py |
 | [tools/build_limit_cycle_doc.py](<tools/build_limit_cycle_doc.py>) | py |
 | [tools/build_project_handover_doc.py](<tools/build_project_handover_doc.py>) | py |
